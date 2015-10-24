@@ -1,0 +1,5 @@
+1. make 7 vertical pushbuttons
+2. add label above and button on each side                  just like   [<] text [>]
+3. make new class Calendar which will derive from QWidget and will have new methods like: getCurrentDate(), changeDateRange(...), generateDateRangeString()
+4. make class Event: name of event, timing (optional?), done/not done...
+5. make class Day which will derive from QPushButton and will have methods like addEvent(Event)
