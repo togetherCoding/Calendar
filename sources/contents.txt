@@ -1,1 +1,2 @@
 launcher.cpp  (main.cpp)
+qmake.txt
