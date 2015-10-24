@@ -1,0 +1,7 @@
+1. First and basic thoughts about calendar application:
+
+- seven (three?) buttons embedded in main window which are representing days in current week - current day will be highlighted in some way
+- label (above day buttons) showing date range or number of week or both [e.g.: 1-7 Jan 2016 (week 1)]
+- day button is colored (green, red, not very important) if there is an event associated with it
+MAYBE: green if day contains events and they are already accomplished (or done), red if day also contains events but they are not accomplished yet or wasn't accomplished at all
+- after clicking on day button, new window will pop out (or main windows contents will be replaced) and it'll present informations about events: list of events with timing in checklist form
