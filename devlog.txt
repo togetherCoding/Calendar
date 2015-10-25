@@ -5,3 +5,4 @@
 - day button is colored (green, red, not very important) if there is an event associated with it
 MAYBE: green if day contains events and they are already accomplished (or done), red if day also contains events but they are not accomplished yet or wasn't accomplished at all
 - after clicking on day button, new window will pop out (or main windows contents will be replaced) and it'll present informations about events: list of events with timing in checklist form
+MAYBE: if the day contains an event that has to happen in a specific time, reminding window will pop out an hour (or time specified by user) before the event
