@@ -52,7 +52,7 @@ QString Calendar::dateToString(int day, int month, int year)
 {
     QString currentDate,currentDay,currentMonth;
 
-    QString days[4]=     {"1-7",
+    QString days[]=     {"1-7",
                          "8-15",
                          "16-23",
                          "24-31"};
@@ -68,23 +68,23 @@ QString Calendar::dateToString(int day, int month, int year)
 
     switch (month)
     {
-        case 1:     currentMonth = "January";
-        case 2:     currentMonth = "Febuary";
-        case 3:     currentMonth = "March";
-        case 4:     currentMonth = "April";
-        case 5:     currentMonth = "May";
-        case 6:     currentMonth = "June";
-        case 7:     currentMonth = "July";
-        case 8:     currentMonth = "August";
-        case 9:     currentMonth = "September";
-        case 10:    currentMonth = "October";
-        case 11:    currentMonth = "November";
-        case 12:    currentMonth = "December";
+        case 0:     currentMonth = "January";
+        case 1:     currentMonth = "Febuary";
+        case 2:     currentMonth = "March";
+        case 3:     currentMonth = "April";
+        case 4:     currentMonth = "May";
+        case 5:     currentMonth = "June";
+        case 6:     currentMonth = "July";
+        case 7:     currentMonth = "August";
+        case 8:     currentMonth = "September";
+        case 9:    currentMonth = "October";
+        case 10:    currentMonth = "November";
+        case 11:    currentMonth = "December";
     }
 
 
-    QString empty = ", ";
-    currentDate = QString::number(day) + empty + QString::number(month) + empty + QString::number(year);
+    QString separator = "  ";
+    currentDate = currentDay + separator + separator + currentMonth + separator + QString::number(year);
     return currentDate;
 }
 
