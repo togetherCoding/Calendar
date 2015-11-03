@@ -25,7 +25,7 @@ Calendar::Calendar()
     // creating elements for navigation box
     navigationLeft = new QPushButton("<<");
     navigationRight = new QPushButton(">>");
-    dateLabel = new QLabel(currentDateLabel);      // QLabel initialization with variable
+    dateLabel = new QLabel();                       // QLabel initialization
 
     navigationLayout = new QHBoxLayout;            // horizontal layout for navigation elements
 
@@ -33,8 +33,11 @@ Calendar::Calendar()
     navigationLayout->addWidget(dateLabel);
     navigationLayout->addWidget(navigationRight);
 
-    actualDate->currentDate();                      //get's information about current date
-
+    *actualDate = QDate::currentDate();                      //get's information about current date and sets proper label
+    int actualDay, actualMonth, actualYear;
+    actualDate->getDate(&actualDay, &actualMonth, &actualYear);
+    QString initialDateLabel = dateToString(actualYear, actualMonth, actualDay);
+    dateLabel->setText("<center>" + initialDateLabel + "</center>");
 
     mainLayout = new QVBoxLayout;                  // vertical layout for navigation and days boxes
     mainLayout->addLayout(navigationLayout);
@@ -47,42 +50,42 @@ Calendar::Calendar()
 
 QString Calendar::dateToString(int day, int month, int year)
 {
-QString currentDate,currentDay,currentMonth;
+    QString currentDate,currentDay,currentMonth;
 
-QString days[4]=     {"1-7",
-                     "8-15",
-                     "16-23",
-                     "24-31"};
-if(day>0 && day <=7)
-    currentDay = days[0];
-if(day>7 && day <=15)
-    currentDay = days[1];
-if(day>16 && day <=23)
-    currentDay = days[2];
-if(day>24 && day <=31)
-    currentDay = days[3];
-
-
-switch (month)
-{
-case 1:     currentMonth = "January";
-case 2:     currentMonth = "Febuary";
-case 3:     currentMonth = "March";
-case 4:     currentMonth = "April";
-case 5:     currentMonth = "May";
-case 6:     currentMonth = "June";
-case 7:     currentMonth = "July";
-case 8:     currentMonth = "August";
-case 9:     currentMonth = "September";
-case 10:    currentMonth = "October";
-case 11:    currentMonth = "November";
-case 12:    currentMonth = "December";
-}
+    QString days[4]=     {"1-7",
+                         "8-15",
+                         "16-23",
+                         "24-31"};
+    if(day>0 && day <=7)
+        currentDay = days[0];
+    if(day>7 && day <=15)
+        currentDay = days[1];
+    if(day>16 && day <=23)
+        currentDay = days[2];
+    if(day>24 && day <=31)
+        currentDay = days[3];
 
 
-QString empty = ", ";
-currentDate = QString::number(day) + empty + QString::number(month) + empty + QString::number(year);
-return currentDate;
+    switch (month)
+    {
+        case 1:     currentMonth = "January";
+        case 2:     currentMonth = "Febuary";
+        case 3:     currentMonth = "March";
+        case 4:     currentMonth = "April";
+        case 5:     currentMonth = "May";
+        case 6:     currentMonth = "June";
+        case 7:     currentMonth = "July";
+        case 8:     currentMonth = "August";
+        case 9:     currentMonth = "September";
+        case 10:    currentMonth = "October";
+        case 11:    currentMonth = "November";
+        case 12:    currentMonth = "December";
+    }
+
+
+    QString empty = ", ";
+    currentDate = QString::number(day) + empty + QString::number(month) + empty + QString::number(year);
+    return currentDate;
 }
 
 Calendar::~Calendar(){}

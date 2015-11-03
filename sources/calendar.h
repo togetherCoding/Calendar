@@ -9,7 +9,7 @@ class Calendar : public QWidget
 
 public:
     explicit Calendar();
-    QString dateToString(int, int, int);
+    QString dateToString(int day, int month, int year);
     ~Calendar();
 
 private:
