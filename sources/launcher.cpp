@@ -7,6 +7,7 @@ int main(int argc, char* argv[])
 
     Calendar *mainWindow = new Calendar;                    // instantiation of object of new class Calendar
 
+
     mainWindow->show();
 
     return app.exec();
