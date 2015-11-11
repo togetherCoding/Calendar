@@ -1,6 +1,7 @@
 #include "calendar.h"
 
-
+static bool flag;
+static int day,month,year;
 
 Calendar::Calendar()
 {
@@ -40,7 +41,8 @@ Calendar::Calendar()
     QString initialDateLabel = dateToString(actualYear, actualMonth, actualDay);
     dateLabel->setText("<center>" + initialDateLabel + "</center>");
 
-    connect(navigationLeft,SIGNAL(pressed()),this,SLOT(navigationLeftClicked()));   //connects navigation left button with action (changing day's range or month)
+    connect(navigationLeft,SIGNAL(pressed()),this,SLOT(navigationLeftClicked()));   //connects navigation buttons with action (changing day's range or month)
+    connect(navigationRight,SIGNAL(pressed()),this,SLOT(navigationRightClicked()));
 
     mainLayout = new QVBoxLayout;                  // vertical layout for navigation and days boxes
     mainLayout->addLayout(navigationLayout);
@@ -106,21 +108,55 @@ QString Calendar::dateToString(int day, int month, int year)
 
 void Calendar::navigationLeftClicked()
 {
-   int actualDay, actualMonth, actualYear;
-   actualDate->getDate(&actualYear,&actualMonth,&actualDay);
 
-   if( actualDay > 7 )
-       actualDay = actualDay - 7;
-   else
-        if(actualMonth > 1)
-            actualMonth = actualMonth - 1;
-   else
-            actualYear = actualYear - 1;
+   if(!flag)
+   {
+      actualDate->getDate(&year,&month,&day);
+      flag = true;
+   }
 
-   QString initialDateLabel = dateToString(actualDay,actualMonth,actualYear);
+   if( day > 7 )
+       day = day - 7;
+   else if(month > 1)
+   {
+        month = month - 1;
+        day = 28;
+   }
+   else
+   {
+        year = year - 1;
+        month = 12;
+   }
+
+   QString initialDateLabel = dateToString(day,month,year);
    dateLabel->setText("<center>" + initialDateLabel + "</center>");
 
 }
 
+void Calendar::navigationRightClicked()
+{
+
+    if(!flag)
+    {
+        actualDate->getDate(&year,&month,&day);
+        flag = true;
+    }
+
+    if( day < 22)
+        day = day + 7;
+    else if (month < 12)
+    {
+        month = month + 1;
+        day = 1;
+    }
+    else
+    {
+        year = year +1;
+        month = 1;
+    }
+
+    QString initialDateLabel = dateToString(day,month,year);
+    dateLabel->setText("<center>" + initialDateLabel + "</center>");
+}
 
 Calendar::~Calendar(){}

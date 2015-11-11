@@ -2,7 +2,7 @@
 #include <QtWidgets>
 #include <QDate>
 #include <QObject>
-#include <QTimer>
+
 
 
 class Calendar : public QWidget
@@ -12,6 +12,7 @@ class Calendar : public QWidget
 public:
     explicit Calendar();
     QString dateToString(int day, int month, int year);
+
     ~Calendar();
 
 private:
@@ -35,8 +36,11 @@ private:
 
     QDate       *actualDate;        //date
 
+
+
 private slots:
      void navigationLeftClicked();
+     void navigationRightClicked();
 
 };
 
