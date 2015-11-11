@@ -1,6 +1,8 @@
 #include <QApplication>
 #include <QtWidgets>
 #include <QDate>
+#include <QObject>
+#include <QTimer>
 
 
 class Calendar : public QWidget
@@ -32,6 +34,9 @@ private:
     QString     currentDateLabel;   //strings
 
     QDate       *actualDate;        //date
+
+private slots:
+     void navigationLeftClicked();
 
 };
 

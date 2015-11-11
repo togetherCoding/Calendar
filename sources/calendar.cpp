@@ -1,6 +1,7 @@
 #include "calendar.h"
 
 
+
 Calendar::Calendar()
 {
 
@@ -39,6 +40,8 @@ Calendar::Calendar()
     QString initialDateLabel = dateToString(actualYear, actualMonth, actualDay);
     dateLabel->setText("<center>" + initialDateLabel + "</center>");
 
+    connect(navigationLeft,SIGNAL(pressed()),this,SLOT(navigationLeftClicked()));   //connects navigation left button with action (changing day's range or month)
+
     mainLayout = new QVBoxLayout;                  // vertical layout for navigation and days boxes
     mainLayout->addLayout(navigationLayout);
     mainLayout->addLayout(daysLayout);
@@ -68,24 +71,56 @@ QString Calendar::dateToString(int day, int month, int year)
 
     switch (month)
     {
-        case 0:     currentMonth = "January";
-        case 1:     currentMonth = "Febuary";
-        case 2:     currentMonth = "March";
-        case 3:     currentMonth = "April";
-        case 4:     currentMonth = "May";
-        case 5:     currentMonth = "June";
-        case 6:     currentMonth = "July";
-        case 7:     currentMonth = "August";
-        case 8:     currentMonth = "September";
-        case 9:    currentMonth = "October";
-        case 10:    currentMonth = "November";
-        case 11:    currentMonth = "December";
+        case 1:     currentMonth = "January";
+        break;
+        case 2:     currentMonth = "Febuary";
+        break;
+        case 3:     currentMonth = "March";
+        break;
+        case 4:     currentMonth = "April";
+        break;
+        case 5:     currentMonth = "May";
+        break;
+        case 6:     currentMonth = "June";
+        break;
+        case 7:     currentMonth = "July";
+        break;
+        case 8:     currentMonth = "August";
+        break;
+        case 9:     currentMonth = "September";
+        break;
+        case 10:    currentMonth = "October";
+        break;
+        case 11:    currentMonth = "November";
+        break;
+        case 12:    currentMonth = "December";
+        break;
+        default: currentMonth = "Wrong month";
+        break;
     }
-
 
     QString separator = "  ";
     currentDate = currentDay + separator + separator + currentMonth + separator + QString::number(year);
     return currentDate;
 }
+
+void Calendar::navigationLeftClicked()
+{
+   int actualDay, actualMonth, actualYear;
+   actualDate->getDate(&actualYear,&actualMonth,&actualDay);
+
+   if( actualDay > 7 )
+       actualDay = actualDay - 7;
+   else
+        if(actualMonth > 1)
+            actualMonth = actualMonth - 1;
+   else
+            actualYear = actualYear - 1;
+
+   QString initialDateLabel = dateToString(actualDay,actualMonth,actualYear);
+   dateLabel->setText("<center>" + initialDateLabel + "</center>");
+
+}
+
 
 Calendar::~Calendar(){}
