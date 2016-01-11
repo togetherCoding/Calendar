@@ -4,7 +4,6 @@
 #include <QObject>
 
 
-
 class Calendar : public QWidget
 {
     Q_OBJECT
@@ -31,16 +30,21 @@ private:
     QVBoxLayout *mainLayout;        //layouts
     QHBoxLayout *daysLayout;
     QHBoxLayout *navigationLayout;
+    QHBoxLayout *textLayout;
 
     QString     currentDateLabel;   //strings
 
+    QInputDialog *taskIn;
+
     QDate       *actualDate;        //date
 
+    QWindow     *createWindow;      //window
 
 
 private slots:
      void navigationLeftClicked();
      void navigationRightClicked();
+     void scheudeleMonday();
 
 };
 

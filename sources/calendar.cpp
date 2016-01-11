@@ -24,6 +24,7 @@ Calendar::Calendar()
     daysLayout->addWidget(daySix);
     daysLayout->addWidget(daySeven);
 
+
     // creating elements for navigation box
     navigationLeft = new QPushButton("<<");
     navigationRight = new QPushButton(">>");
@@ -43,12 +44,11 @@ Calendar::Calendar()
 
     connect(navigationLeft,SIGNAL(pressed()),this,SLOT(navigationLeftClicked()));   //connects navigation buttons with action (changing day's range or month)
     connect(navigationRight,SIGNAL(pressed()),this,SLOT(navigationRightClicked()));
-
     mainLayout = new QVBoxLayout;                  // vertical layout for navigation and days boxes
     mainLayout->addLayout(navigationLayout);
     mainLayout->addLayout(daysLayout);
 
-
+    connect(dayOne,SIGNAL(pressed()),this,SLOT(scheudeleMonday()));
 
     this->setLayout(mainLayout);
 }
@@ -130,7 +130,6 @@ void Calendar::navigationLeftClicked()
 
    QString initialDateLabel = dateToString(day,month,year);
    dateLabel->setText("<center>" + initialDateLabel + "</center>");
-
 }
 
 void Calendar::navigationRightClicked()
@@ -159,4 +158,16 @@ void Calendar::navigationRightClicked()
     dateLabel->setText("<center>" + initialDateLabel + "</center>");
 }
 
+void Calendar::scheudeleMonday()
+{
+createWindow = new QWindow();
+createWindow->setVisible(1);
+createWindow->setTitle("Task list: ");
+createWindow->setGeometry(
+            QStyle::alignedRect(
+                Qt::LeftToRight,Qt::AlignCenter,createWindow->size(),qApp->desktop()->availableGeometry()
+                )
+            );
+
+}
 Calendar::~Calendar(){}
