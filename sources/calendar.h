@@ -25,20 +25,22 @@ private:
     QPushButton *navigationLeft;
     QPushButton *navigationRight;
 
+
     QLabel      *dateLabel;         //labels
+    QLabel      *taskLabel;                                                  //
 
     QVBoxLayout *mainLayout;        //layouts
     QHBoxLayout *daysLayout;
     QHBoxLayout *navigationLayout;
-    QHBoxLayout *textLayout;
+    QGridLayout *taskLayout;                                                 //
 
     QString     currentDateLabel;   //strings
 
-    QInputDialog *taskIn;
+    QLineEdit   *taskIn;                                                    //
 
     QDate       *actualDate;        //date
 
-    QWindow     *createWindow;      //window
+    QWidget     *createWindow;      //window
 
 
 private slots:

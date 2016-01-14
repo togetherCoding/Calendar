@@ -160,14 +160,19 @@ void Calendar::navigationRightClicked()
 
 void Calendar::scheudeleMonday()
 {
-createWindow = new QWindow();
-createWindow->setVisible(1);
-createWindow->setTitle("Task list: ");
-createWindow->setGeometry(
-            QStyle::alignedRect(
-                Qt::LeftToRight,Qt::AlignCenter,createWindow->size(),qApp->desktop()->availableGeometry()
-                )
-            );
+createWindow = new QWidget();
 
+taskLabel = new QLabel("New task: ");
+taskLayout = new QGridLayout();
+taskIn = new QLineEdit;
+
+taskIn->text();
+
+taskLayout->addWidget(taskLabel);
+taskLayout->addWidget(taskIn);
+
+createWindow->setWindowTitle("Add new task");
+createWindow->setLayout(taskLayout);
+createWindow->show();
 }
 Calendar::~Calendar(){}
