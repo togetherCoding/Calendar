@@ -36,6 +36,7 @@ Calendar::Calendar()
     navigationLayout->addWidget(dateLabel);
     navigationLayout->addWidget(navigationRight);
 
+    actualDate = new QDate;
     *actualDate = QDate::currentDate();                      //get's information about current date and sets proper label
     int actualDay, actualMonth, actualYear;
     actualDate->getDate(&actualDay, &actualMonth, &actualYear);
