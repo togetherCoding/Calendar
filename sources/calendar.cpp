@@ -49,9 +49,29 @@ Calendar::Calendar()
     mainLayout->addLayout(navigationLayout);
     mainLayout->addLayout(daysLayout);
 
-    connect(dayOne,SIGNAL(pressed()),this,SLOT(scheudeleMonday()));
-
     this->setLayout(mainLayout);
+
+
+    QSignalMapper* signalMapper = new QSignalMapper(this);              // signal mapping is needed to parametrize slot :(
+
+    connect(dayOne, SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(dayTwo, SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(dayThree, SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(dayFour, SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(dayFive, SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(daySix, SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(daySeven, SIGNAL(pressed()), signalMapper, SLOT(map()));
+
+    signalMapper->setMapping(dayOne, 1);
+    signalMapper->setMapping(dayTwo, 2);
+    signalMapper->setMapping(dayThree, 3);
+    signalMapper->setMapping(dayFour, 4);
+    signalMapper->setMapping(dayFive, 5);
+    signalMapper->setMapping(daySix, 6);
+    signalMapper->setMapping(daySeven, 7);
+
+    connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(scheduleDay(int)));
+
 }
 
 QString Calendar::dateToString(int day, int month, int year)
@@ -129,8 +149,8 @@ void Calendar::navigationLeftClicked()
         month = 12;
    }
 
-   QString initialDateLabel = dateToString(day,month,year);
-   dateLabel->setText("<center>" + initialDateLabel + "</center>");
+   currentDateLabel = dateToString(day,month,year);
+   dateLabel->setText("<center>" + currentDateLabel + "</center>");
 }
 
 void Calendar::navigationRightClicked()
@@ -155,25 +175,25 @@ void Calendar::navigationRightClicked()
         month = 1;
     }
 
-    QString initialDateLabel = dateToString(day,month,year);
-    dateLabel->setText("<center>" + initialDateLabel + "</center>");
+    currentDateLabel = dateToString(day,month,year);
+    dateLabel->setText("<center>" + currentDateLabel + "</center>");
 }
 
-void Calendar::scheudeleMonday()
+void Calendar::scheduleDay(int dayID)
 {
-createWindow = new QWidget();
+    createWindow = new QWidget();
 
-taskLabel = new QLabel("New task: ");
-taskLayout = new QGridLayout();
-taskIn = new QLineEdit;
+    taskLabel = new QLabel("New task: ");
+    taskLayout = new QGridLayout();
+    taskIn = new QLineEdit;
 
-taskIn->text();
+    taskIn->text();
 
-taskLayout->addWidget(taskLabel);
-taskLayout->addWidget(taskIn);
+    taskLayout->addWidget(taskLabel);
+    taskLayout->addWidget(taskIn);
 
-createWindow->setWindowTitle("Add new task");
-createWindow->setLayout(taskLayout);
-createWindow->show();
+    createWindow->setWindowTitle("Add new task");
+    createWindow->setLayout(taskLayout);
+    createWindow->show();
 }
 Calendar::~Calendar(){}

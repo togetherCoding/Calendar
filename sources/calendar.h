@@ -46,7 +46,7 @@ private:
 private slots:
      void navigationLeftClicked();
      void navigationRightClicked();
-     void scheudeleMonday();
+     void scheduleDay(int dayID);
 
 };
 
