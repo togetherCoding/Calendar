@@ -70,7 +70,8 @@ Calendar::Calendar()
     signalMapper->setMapping(daySix, 6);
     signalMapper->setMapping(daySeven, 7);
 
-    connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(scheduleDay(int)));
+    connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(scheduleDay(int)));    
+
 
 }
 
@@ -184,16 +185,31 @@ void Calendar::scheduleDay(int dayID)
     createWindow = new QWidget();
 
     taskLabel = new QLabel("New task: ");
+    task1 = new QLabel;
+    task2 = new QLabel;
     taskLayout = new QGridLayout();
     taskIn = new QLineEdit;
+    taskAccept = new QPushButton("Ok");
+
 
     taskIn->text();
 
     taskLayout->addWidget(taskLabel);
     taskLayout->addWidget(taskIn);
+    taskLayout->addWidget(taskAccept);
+    taskLayout->addWidget(task1);
+    taskLayout->addWidget(task2);
 
     createWindow->setWindowTitle("Add new task");
     createWindow->setLayout(taskLayout);
     createWindow->show();
+
+    connect(taskAccept, SIGNAL(clicked(bool)),this,SLOT(makeList()));
+
 }
+void Calendar::makeList(){
+
+   //tu nie wiem czo taskList->setText();
+}
+
 Calendar::~Calendar(){}

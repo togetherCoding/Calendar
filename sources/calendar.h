@@ -24,15 +24,18 @@ private:
     QPushButton *daySeven;
     QPushButton *navigationLeft;
     QPushButton *navigationRight;
-
+    QPushButton *taskAccept;
 
     QLabel      *dateLabel;         //labels
     QLabel      *taskLabel;                                                  //
+    QLabel      *taskList;
+    QLabel      *task1;
+    QLabel      *task2;
 
     QVBoxLayout *mainLayout;        //layouts
     QHBoxLayout *daysLayout;
     QHBoxLayout *navigationLayout;
-    QGridLayout *taskLayout;                                                 //
+    QGridLayout *taskLayout;
 
     QString     currentDateLabel;   //strings
 
@@ -42,11 +45,11 @@ private:
 
     QWidget     *createWindow;      //window
 
-
 private slots:
      void navigationLeftClicked();
      void navigationRightClicked();
      void scheduleDay(int dayID);
+     void makeList();
 
 };
 
