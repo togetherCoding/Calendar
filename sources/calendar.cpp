@@ -70,7 +70,7 @@ Calendar::Calendar()
     signalMapper->setMapping(daySix, 6);
     signalMapper->setMapping(daySeven, 7);
 
-    connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(scheduleDay(int)));    
+    connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(scheduleDay(int)));
 
 
 }
@@ -207,9 +207,18 @@ void Calendar::scheduleDay(int dayID)
     connect(taskAccept, SIGNAL(clicked(bool)),this,SLOT(makeList()));
 
 }
-void Calendar::makeList(){
+void Calendar::makeList()
+{
+    static int counter = 1;
+    QString temp;
+    temp = taskIn->text();
 
-   //tu nie wiem czo taskList->setText();
+    if(counter == 1)
+        task1->setText(temp);
+    else if (counter == 2)
+        task2->setText(temp);
+
+    counter++;
 }
 
 Calendar::~Calendar(){}
