@@ -45,11 +45,17 @@ private:
 
     QWidget     *createWindow;      //window
 
+    bool flag,flagButton;
+
+    int day,month,year;
+    int whatDay;
+
 private slots:
      void navigationLeftClicked();
      void navigationRightClicked();
      void scheduleDay(int dayID);
      void makeList();
+     void sortButtons();
 
 };
 

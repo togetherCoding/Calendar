@@ -1,10 +1,12 @@
 #include "calendar.h"
 
-static bool flag;
-static int day,month,year;
-
 Calendar::Calendar()
 {
+
+    actualDate = new QDate;
+    *actualDate = QDate::currentDate();                      //get's information about current date and sets proper label
+    int actualDay, actualMonth, actualYear;
+    actualDate->getDate(&actualDay, &actualMonth, &actualYear);
 
     dayOne = new QPushButton("Monday");
     dayTwo = new QPushButton("Tuesday");
@@ -16,42 +18,26 @@ Calendar::Calendar()
 
     daysLayout = new QHBoxLayout;
 
-    daysLayout->addWidget(dayOne);
-    daysLayout->addWidget(dayTwo);
-    daysLayout->addWidget(dayThree);
-    daysLayout->addWidget(dayFour);
-    daysLayout->addWidget(dayFive);
-    daysLayout->addWidget(daySix);
-    daysLayout->addWidget(daySeven);
-
+    navigationLayout = new QHBoxLayout;            // horizontal layout for navigation elements
 
     // creating elements for navigation box
     navigationLeft = new QPushButton("<<");
     navigationRight = new QPushButton(">>");
     dateLabel = new QLabel();                       // QLabel initialization
 
-    navigationLayout = new QHBoxLayout;            // horizontal layout for navigation elements
-
     navigationLayout->addWidget(navigationLeft);
     navigationLayout->addWidget(dateLabel);
     navigationLayout->addWidget(navigationRight);
 
-    actualDate = new QDate;
-    *actualDate = QDate::currentDate();                      //get's information about current date and sets proper label
-    int actualDay, actualMonth, actualYear;
-    actualDate->getDate(&actualDay, &actualMonth, &actualYear);
-    QString initialDateLabel = dateToString(actualYear, actualMonth, actualDay);
-    dateLabel->setText("<center>" + initialDateLabel + "</center>");
-
-    connect(navigationLeft,SIGNAL(pressed()),this,SLOT(navigationLeftClicked()));   //connects navigation buttons with action (changing day's range or month)
-    connect(navigationRight,SIGNAL(pressed()),this,SLOT(navigationRightClicked()));
     mainLayout = new QVBoxLayout;                  // vertical layout for navigation and days boxes
     mainLayout->addLayout(navigationLayout);
     mainLayout->addLayout(daysLayout);
-
     this->setLayout(mainLayout);
-
-
+    QString initialDateLabel = dateToString(actualYear, actualMonth, actualDay);
+    dateLabel->setText("<center>" + initialDateLabel + "</center>");
+    sortButtons();
+    connect(navigationLeft,SIGNAL(pressed()),this,SLOT(navigationLeftClicked()));   //connects navigation buttons with action (changing day's range or month)
+    connect(navigationRight,SIGNAL(pressed()),this,SLOT(navigationRightClicked()));
     QSignalMapper* signalMapper = new QSignalMapper(this);              // signal mapping is needed to parametrize slot :(
 
     connect(dayOne, SIGNAL(pressed()), signalMapper, SLOT(map()));
@@ -71,27 +57,12 @@ Calendar::Calendar()
     signalMapper->setMapping(daySeven, 7);
 
     connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(scheduleDay(int)));
-
-
 }
 
 QString Calendar::dateToString(int day, int month, int year)
 {
+
     QString currentDate,currentDay,currentMonth;
-
-    QString days[]=     {"1-7",
-                         "8-15",
-                         "16-23",
-                         "24-31"};
-    if(day>0 && day <=7)
-        currentDay = days[0];
-    if(day>7 && day <=15)
-        currentDay = days[1];
-    if(day>16 && day <=23)
-        currentDay = days[2];
-    if(day>24 && day <=31)
-        currentDay = days[3];
-
 
     switch (month)
     {
@@ -123,6 +94,69 @@ QString Calendar::dateToString(int day, int month, int year)
         break;
     }
 
+    if( month % 2 != 0 || month == 8 )
+    {
+        QString days[]=     {"1-7",
+                         "8-15",
+                         "16-23",
+                         "24-31"};
+        if(day>0 && day <=7)
+        currentDay = days[0];
+        if(day>7 && day <=15)
+        currentDay = days[1];
+        if(day>15 && day <=23)
+        currentDay = days[2];
+        if(day>23 && day <=31)
+        currentDay = days[3];
+     }
+    if( month % 2 == 0 && month != 2 && month != 8)
+    {
+        QString days[]=     {"1-7",
+                         "8-15",
+                         "16-23",
+                         "24-30"};
+        if(day>0 && day <=7)
+        currentDay = days[0];
+        if(day>7 && day <=15)
+        currentDay = days[1];
+        if(day>15 && day <=23)
+        currentDay = days[2];
+        if(day>23 && day <=30)
+        currentDay = days[3];
+    }
+    if ( month == 2)
+    {
+        if ( year % 4 == 0)
+        {
+            QString days[]=     {"1-7",
+                             "8-15",
+                             "16-23",
+                             "24-29"};
+            if(day>0 && day <=7)
+            currentDay = days[0];
+            if(day>7 && day <=15)
+            currentDay = days[1];
+            if(day>15 && day <=23)
+            currentDay = days[2];
+            if(day>23 && day <=29)
+            currentDay = days[3];
+        }
+        else
+        {
+            QString days[]=     {"1-7",
+                             "8-15",
+                             "16-23",
+                             "24-28"};
+            if(day>0 && day <=7)
+            currentDay = days[0];
+            if(day>7 && day <=15)
+            currentDay = days[1];
+            if(day>15 && day <=23)
+            currentDay = days[2];
+            if(day>23 && day <=28)
+            currentDay = days[3];
+        }
+    }
     QString separator = "  ";
     currentDate = currentDay + separator + separator + currentMonth + separator + QString::number(year);
     return currentDate;
@@ -152,6 +186,8 @@ void Calendar::navigationLeftClicked()
 
    currentDateLabel = dateToString(day,month,year);
    dateLabel->setText("<center>" + currentDateLabel + "</center>");
+
+   sortButtons();
 }
 
 void Calendar::navigationRightClicked()
@@ -163,8 +199,11 @@ void Calendar::navigationRightClicked()
         flag = true;
     }
 
-    if( day < 22)
-        day = day + 7;
+    if( day < 24)
+        if(month == 2)
+            day = day + 5;
+        else
+            day = day + 7;
     else if (month < 12)
     {
         month = month + 1;
@@ -174,10 +213,13 @@ void Calendar::navigationRightClicked()
     {
         year = year +1;
         month = 1;
+        day = 1;
     }
 
     currentDateLabel = dateToString(day,month,year);
     dateLabel->setText("<center>" + currentDateLabel + "</center>");
+    sortButtons();
+
 }
 
 void Calendar::scheduleDay(int dayID)
@@ -219,6 +261,81 @@ void Calendar::makeList()
         task2->setText(temp);
 
     counter++;
+}
+void Calendar::sortButtons()
+{
+    if(!flagButton)
+    {
+       actualDate->getDate(&year,&month,&day);
+       flagButton = true;
+    }
+
+    QDate dayOfWeek(2016,month,1);
+    whatDay = dayOfWeek.dayOfWeek();
+
+    if(whatDay == 1){
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+    }
+    if(whatDay == 2){
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+    }
+    if(whatDay == 3){
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+    }
+    if(whatDay == 4){
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+    }
+    if(whatDay == 5){
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+    }
+    if(whatDay == 6){
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+    }
+    if(whatDay == 7){
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+    }
 }
 
 Calendar::~Calendar(){}
