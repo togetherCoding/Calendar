@@ -1,9 +1,10 @@
 #include <QString>
 #include <QTime>
+#include <QDate>
 
 class Event
 {
-    int id;
+    QDate date;
     QString name;
     bool range;
     QTime startTime;
@@ -11,8 +12,8 @@ class Event
 
 public:
 
-    Event(QString name, QTime startTime, QTime endTime);
-    int getID();
+    Event(QString name, QTime startTime, QTime endTime, QDate date);
+    QDate getDate();
     QString getName();
     bool isRange();
     QTime getStartTime();

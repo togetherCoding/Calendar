@@ -2,7 +2,9 @@ QT      += widgets
 
 SOURCES += \
     launcher.cpp \
-    calendar.cpp
+    calendar.cpp \
+    event.cpp
 
 HEADERS += \
-    calendar.h
+    calendar.h \
+    event.h

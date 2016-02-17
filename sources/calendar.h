@@ -2,6 +2,7 @@
 #include <QtWidgets>
 #include <QDate>
 #include <QObject>
+#include "event.h"
 
 
 class Calendar : public QWidget
@@ -28,9 +29,12 @@ private:
 
     QLabel      *dateLabel;         //labels
     QLabel      *taskLabel;                                                  //
-    QLabel      *taskList;
-    QLabel      *task1;
-    QLabel      *task2;
+    QLabel      *taskNameList;
+    QLabel      *taskStartTimeList;
+    QLabel      *taskEndTimeList;
+    QLabel      *taskNameLabel;
+    QLabel      *taskStartTimeLabel;
+    QLabel      *taskEndTimeLabel;
 
     QVBoxLayout *mainLayout;        //layouts
     QHBoxLayout *daysLayout;
@@ -42,14 +46,24 @@ private:
     QLineEdit   *taskIn;                                                    //
 
     QDate       *actualDate;        //date
+    QDate       *activeDate;
 
     QWidget     *createWindow;      //window
+
+    QTimeEdit   *startTime;
+    QTimeEdit   *endTime;
+
+    Event       **eventList;
+
+    int         eventListCounter;
+
 
 private slots:
      void navigationLeftClicked();
      void navigationRightClicked();
      void scheduleDay(int dayID);
      void makeList();
+     void updateTaskWindow();
 
 };
 
