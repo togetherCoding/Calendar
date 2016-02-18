@@ -45,7 +45,7 @@ private:
 
     QWidget     *createWindow;      //window
 
-    bool flag,flagButton;
+    bool flag,flagButton,flagHide,flagFeb;
 
     int day,month,year;
     int whatDay;
