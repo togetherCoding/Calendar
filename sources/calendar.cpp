@@ -1,10 +1,12 @@
 #include "calendar.h"
 
-static bool flag;
-static int day,month,year;
-
 Calendar::Calendar()
 {
+    actualDate = new QDate;
+    *actualDate = QDate::currentDate();                      //get's information about current date and sets proper label
+    int actualDay, actualMonth, actualYear;
+    actualDate->getDate(&actualDay, &actualMonth, &actualYear);
+
     dayOne = new QPushButton("Monday");
     dayTwo = new QPushButton("Tuesday");
     dayThree = new QPushButton("Wednesday");
@@ -15,41 +17,29 @@ Calendar::Calendar()
 
     daysLayout = new QHBoxLayout;
 
-    daysLayout->addWidget(dayOne);
-    daysLayout->addWidget(dayTwo);
-    daysLayout->addWidget(dayThree);
-    daysLayout->addWidget(dayFour);
-    daysLayout->addWidget(dayFive);
-    daysLayout->addWidget(daySix);
-    daysLayout->addWidget(daySeven);
-
+    navigationLayout = new QHBoxLayout;            // horizontal layout for navigation elements
 
     // creating elements for navigation box
     navigationLeft = new QPushButton("<<");
     navigationRight = new QPushButton(">>");
     dateLabel = new QLabel();                       // QLabel initialization
 
-    navigationLayout = new QHBoxLayout;            // horizontal layout for navigation elements
-
     navigationLayout->addWidget(navigationLeft);
     navigationLayout->addWidget(dateLabel);
     navigationLayout->addWidget(navigationRight);
 
-    actualDate = new QDate;
-    *actualDate = QDate::currentDate();                      //get's information about current date and sets proper label
-    int actualDay, actualMonth, actualYear;
-    actualDate->getDate(&actualYear, &actualMonth, &actualDay);
-
-    QString initialDateLabel = dateToString(actualDay, actualMonth, actualYear);
-    dateLabel->setText("<center>" + initialDateLabel + "</center>");
-
-    connect(navigationLeft,SIGNAL(pressed()),this,SLOT(navigationLeftClicked()));   //connects navigation buttons with action (changing day's range or month)
-    connect(navigationRight,SIGNAL(pressed()),this,SLOT(navigationRightClicked()));
     mainLayout = new QVBoxLayout;                  // vertical layout for navigation and days boxes
     mainLayout->addLayout(navigationLayout);
     mainLayout->addLayout(daysLayout);
-
     this->setLayout(mainLayout);
+
+    QString initialDateLabel = dateToString(actualYear, actualMonth, actualDay);
+    dateLabel->setText("<center>" + initialDateLabel + "</center>");
+    sortButtons();
+    connect(navigationLeft,SIGNAL(pressed()),this,SLOT(navigationLeftClicked()));   //connects navigation buttons with action (changing day's range or month)
+    connect(navigationRight,SIGNAL(pressed()),this,SLOT(navigationRightClicked()));
+
+
 
     QSignalMapper* signalMapper = new QSignalMapper(this);              // signal mapping is needed to parametrize slot :(
 
@@ -73,27 +63,12 @@ Calendar::Calendar()
 
     eventList = new Event*[100];             // constant number of events [ temporary ]
     eventListCounter = 0;
-
-    actualDate->getDate(&year,&month,&day);
 }
 
 QString Calendar::dateToString(int day, int month, int year)
 {
+
     QString currentDate,currentDay,currentMonth;
-
-    QString days[]=     {"1-7",
-                         "8-15",
-                         "16-23",
-                         "24-31"};
-    if(day>0 && day <=7)
-        currentDay = days[0];
-    if(day>7 && day <=15)
-        currentDay = days[1];
-    if(day>16 && day <=23)
-        currentDay = days[2];
-    if(day>24 && day <=31)
-        currentDay = days[3];
-
 
     switch (month)
     {
@@ -125,6 +100,77 @@ QString Calendar::dateToString(int day, int month, int year)
         break;
     }
 
+    if( month % 2 != 0 || month == 8 )
+    {
+        QString days[]=     {"1-7",
+                         "8-14",
+                         "15-21",
+                         "22-28",
+                          "29-31"};
+        if(day>0 && day <=7)
+        currentDay = days[0];
+        if(day>7 && day <=14)
+        currentDay = days[1];
+        if(day>14 && day <=21)
+        currentDay = days[2];
+        if(day>21 && day <=28)
+        currentDay = days[3];
+        if(day>28 && day <=31)
+        currentDay = days[4];
+     }
+    if( month % 2 == 0 && month != 2 && month != 8)
+    {
+        QString days[]=     {"1-7",
+                         "8-14",
+                         "15-21",
+                         "22-28",
+                          "29-30"};
+        if(day>0 && day <=7)
+        currentDay = days[0];
+        if(day>7 && day <=14)
+        currentDay = days[1];
+        if(day>14 && day <=21)
+        currentDay = days[2];
+        if(day>21 && day <=28)
+        currentDay = days[3];
+        if(day>28 && day <=30)
+        currentDay = days[4];
+    }
+    if ( month == 2)
+    {
+        if ( year % 4 == 0)
+        {
+            QString days[]=     {"1-7",
+                             "8-14",
+                             "15-21",
+                             "22-28","29"};
+            if(day>0 && day <=7)
+            currentDay = days[0];
+            if(day>7 && day <=14)
+            currentDay = days[1];
+            if(day>14 && day <=21)
+            currentDay = days[2];
+            if(day>21 && day <=28)
+            currentDay = days[3];
+            if(day == 29)
+            currentDay = days[4];
+        }
+        else
+        {
+            QString days[]=     {"1-7",
+                             "8-14",
+                             "15-21",
+                             "22-28"};
+            if(day>0 && day <=7)
+            currentDay = days[0];
+            if(day>7 && day <=14)
+            currentDay = days[1];
+            if(day>14 && day <=21)
+            currentDay = days[2];
+            if(day>21 && day <=28)
+            currentDay = days[3];
+        }
+    }
     QString separator = "  ";
     currentDate = currentDay + separator + separator + currentMonth + separator + QString::number(year);
     return currentDate;
@@ -144,16 +190,30 @@ void Calendar::navigationLeftClicked()
    else if(month > 1)
    {
         month = month - 1;
-        day = 28;
+        day = 29;
    }
    else
    {
         year = year - 1;
         month = 12;
+        day = 29;
+   }
+
+   if(flagHide == 1)
+   {
+   dayOne->show();
+   dayTwo->show();
+   dayThree->show();
+   dayFour->show();
+   dayFive->show();
+   daySix->show();
+   daySeven->show();
    }
 
    currentDateLabel = dateToString(day,month,year);
    dateLabel->setText("<center>" + currentDateLabel + "</center>");
+
+   sortButtons();
 }
 
 void Calendar::navigationRightClicked()
@@ -164,9 +224,13 @@ void Calendar::navigationRightClicked()
         actualDate->getDate(&year,&month,&day);
         flag = true;
     }
-
-    if( day < 22)
-        day = day + 7;
+    if(month == 2 && year % 4 == 0 && day>22 && flagFeb == 1)
+    {
+        day = 29;
+        flagFeb = 0;
+    }
+    else if( day <= 22 && flagFeb == 0)
+         day = day + 7;
     else if (month < 12)
     {
         month = month + 1;
@@ -176,10 +240,21 @@ void Calendar::navigationRightClicked()
     {
         year = year +1;
         month = 1;
+        day = 1;
     }
-
+    if(flagHide == 1)
+    {
+    dayOne->show();
+    dayTwo->show();
+    dayThree->show();
+    dayFour->show();
+    dayFive->show();
+    daySix->show();
+    daySeven->show();
+    }
     currentDateLabel = dateToString(day,month,year);
     dateLabel->setText("<center>" + currentDateLabel + "</center>");
+    sortButtons();
 }
 
 void Calendar::scheduleDay(int dayID)
@@ -275,6 +350,280 @@ void Calendar::updateTaskWindow()
         }
     }
 
+}
+void Calendar::sortButtons()
+{
+    if(!flagButton)
+    {
+       actualDate->getDate(&year,&month,&day);
+       flagButton = true;
+    }
+
+    QDate dayOfWeek(2016,month,1);
+    whatDay = dayOfWeek.dayOfWeek();
+
+    if(whatDay == 1){
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+    }
+    if(whatDay == 2){
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+
+
+    }
+    if(whatDay == 3){
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+    }
+    if(whatDay == 4){
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+    }
+    if(whatDay == 5){
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+    }
+    if(whatDay == 6){
+        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+    }
+    if(whatDay == 7){
+        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(daySix);
+    }
+    if( (month % 2 != 0 || month == 8) && day > 28)
+    {
+        if(whatDay == 1)
+        {
+           dayFour->hide();
+           dayFive->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 2)
+        {
+           dayOne->hide();
+           dayFive->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 3)
+        {
+           dayOne->hide();
+           dayTwo->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 4)
+        {
+           dayOne->hide();
+           dayTwo->hide();
+           dayThree->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 5)
+        {
+           dayOne->hide();
+           dayTwo->hide();
+           dayThree->hide();
+           dayFour->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 6)
+        {
+           dayFive->hide();
+           dayTwo->hide();
+           dayThree->hide();
+           dayFour->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 7)
+        {
+           dayFive->hide();
+           daySix->hide();
+           dayThree->hide();
+           dayFour->hide();
+           flagHide = 1;
+        }
+    }
+    if( month % 2 == 0 && month != 2 && day > 28)
+    {
+        if(whatDay == 1)
+        {
+           dayThree->hide();
+           dayFour->hide();
+           dayFive->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 2)
+        {
+           dayOne->hide();
+           dayFour->hide();
+           dayFive->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 3)
+        {
+           dayOne->hide();
+           dayTwo->hide();
+           dayFive->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 4)
+        {
+           dayOne->hide();
+           dayTwo->hide();
+           dayThree->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 5)
+        {
+           dayOne->hide();
+           dayTwo->hide();
+           dayThree->hide();
+           dayFour->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 6)
+        {
+           dayOne->hide();
+           dayFive->hide();
+           dayTwo->hide();
+           dayThree->hide();
+           dayFour->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 7)
+        {
+           dayTwo->hide();
+           dayFive->hide();
+           daySix->hide();
+           dayThree->hide();
+           dayFour->hide();
+           flagHide = 1;
+        }
+        if( month  == 2 && day > 28)
+        {
+            if(whatDay == 1)
+            {  dayTwo->hide();
+               dayThree->hide();
+               dayFour->hide();
+               dayFive->hide();
+               daySix->hide();
+               daySeven->hide();
+               flagHide = 1;
+            }
+            if(whatDay == 2)
+            {
+               dayOne->hide();
+               dayThree->hide();
+               dayFour->hide();
+               dayFive->hide();
+               daySix->hide();
+               daySeven->hide();
+               flagHide = 1;
+            }
+            if(whatDay == 3)
+            {
+               dayOne->hide();
+               dayTwo->hide();
+               dayFour->hide();
+               dayFive->hide();
+               daySix->hide();
+               daySeven->hide();
+               flagHide = 1;
+            }
+            if(whatDay == 4)
+            {
+               dayOne->hide();
+               dayTwo->hide();
+               dayThree->hide();
+               dayFive->hide();
+               daySix->hide();
+               daySeven->hide();
+               flagHide = 1;
+            }
+            if(whatDay == 5)
+            {
+               dayOne->hide();
+               dayTwo->hide();
+               dayThree->hide();
+               dayFour->hide();
+               daySix->hide();
+               daySeven->hide();
+               flagHide = 1;
+            }
+            if(whatDay == 6)
+            {
+               dayOne->hide();
+               dayFive->hide();
+               dayTwo->hide();
+               dayThree->hide();
+               dayFour->hide();
+               daySeven->hide();
+               flagHide = 1;
+            }
+            if(whatDay == 7)
+            {
+               dayOne->hide();
+               dayTwo->hide();
+               dayFive->hide();
+               daySix->hide();
+               dayThree->hide();
+               dayFour->hide();
+               flagHide = 1;
+            }
+    }
+  }
 }
 
 Calendar::~Calendar(){}

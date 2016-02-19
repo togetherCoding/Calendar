@@ -50,6 +50,12 @@ private:
 
     QWidget     *createWindow;      //window
 
+
+    bool flag,flagButton,flagHide,flagFeb;
+
+    int day,month,year;
+    int whatDay;
+
     QTimeEdit   *startTime;
     QTimeEdit   *endTime;
 
@@ -57,12 +63,12 @@ private:
 
     int         eventListCounter;
 
-
 private slots:
      void navigationLeftClicked();
      void navigationRightClicked();
      void scheduleDay(int dayID);
      void makeList();
+     void sortButtons();
      void updateTaskWindow();
 
 };
