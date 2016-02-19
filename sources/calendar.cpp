@@ -67,7 +67,9 @@ Calendar::Calendar()
 
 QString Calendar::dateToString(int day, int month, int year)
 {
-
+    /* This method gets information about real current week day, month and year (from it's parameter)
+       and converts month number to word (1 to January etc.). It also gets day number, and converts
+       it to string. Year is shown as a number. */
     QString currentDate,currentDay,currentMonth;
 
     switch (month)
@@ -178,7 +180,9 @@ QString Calendar::dateToString(int day, int month, int year)
 
 void Calendar::navigationLeftClicked()
 {
-
+    /* This function is used for navigation, to reach previous range
+       of days or previous month, or year. At first its getting real
+       date, which is needed for initialization.*/
    if(!flag)
    {
       actualDate->getDate(&year,&month,&day);
@@ -198,7 +202,8 @@ void Calendar::navigationLeftClicked()
         month = 12;
         day = 29;
    }
-
+   /* This condition is showing weekday buttons, whenever flagHide is true.
+      day buttons are hidden in sortButtons function below. */
    if(flagHide == 1)
    {
    dayOne->show();
@@ -218,7 +223,9 @@ void Calendar::navigationLeftClicked()
 
 void Calendar::navigationRightClicked()
 {
-
+    /* This function is used for navigation, to reach future range
+       of days or previous month, or year. At first its getting real
+       date, which is needed for initialization.*/
     if(!flag)
     {
         actualDate->getDate(&year,&month,&day);
@@ -242,6 +249,8 @@ void Calendar::navigationRightClicked()
         month = 1;
         day = 1;
     }
+    /* This condition is showing weekday buttons, whenever flagHide is true.
+       day buttons are hidden in sortButtons function below. */
     if(flagHide == 1)
     {
     dayOne->show();
@@ -254,6 +263,7 @@ void Calendar::navigationRightClicked()
     }
     currentDateLabel = dateToString(day,month,year);
     dateLabel->setText("<center>" + currentDateLabel + "</center>");
+
     sortButtons();
 }
 
@@ -353,15 +363,21 @@ void Calendar::updateTaskWindow()
 }
 void Calendar::sortButtons()
 {
+    /* This function is sorting buttons according to the first day
+     * of selected month. At first it gets information about current date
+       at the initialization of program. */
     if(!flagButton)
     {
        actualDate->getDate(&year,&month,&day);
        flagButton = true;
     }
 
-    QDate dayOfWeek(2016,month,1);
-    whatDay = dayOfWeek.dayOfWeek();
+    QDate dayOfWeek(year,month,1);      //gets information about first day of selected month and year
+    whatDay = dayOfWeek.dayOfWeek();    /* Used dayOfWeek function from QDate dayOfWeek object to
+                                           get infomation what day of week (monday = 1, thursday = 2 etc.)
+                                           is first day of selected month */
 
+    //Sortting buttons on the information about first day of selected month
     if(whatDay == 1){
         daysLayout->addWidget(dayOne);
         daysLayout->addWidget(dayTwo);
@@ -427,6 +443,9 @@ void Calendar::sortButtons()
         daysLayout->addWidget(dayFive);
         daysLayout->addWidget(daySix);
     }
+    //If month has 31 days, and selected range of days is greater than 28
+    //Then this condition is hiding rest of buttons, setting flag to 1.
+    //Flag is reseted in navigationLeftClicked and navigationRightClicked fcn.
     if( (month % 2 != 0 || month == 8) && day > 28)
     {
         if(whatDay == 1)
@@ -486,6 +505,9 @@ void Calendar::sortButtons()
            flagHide = 1;
         }
     }
+    //If month has 30 days, and selected range of days is greater than 28
+    //Then this condition is hiding rest of buttons, setting flag to 1.
+    //Flag is reseted in navigationLeftClicked and navigationRightClicked fcn.
     if( month % 2 == 0 && month != 2 && day > 28)
     {
         if(whatDay == 1)
@@ -551,78 +573,81 @@ void Calendar::sortButtons()
            dayFour->hide();
            flagHide = 1;
         }
-        if( month  == 2 && day > 28)
-        {
-            if(whatDay == 1)
-            {  dayTwo->hide();
-               dayThree->hide();
-               dayFour->hide();
-               dayFive->hide();
-               daySix->hide();
-               daySeven->hide();
-               flagHide = 1;
-            }
-            if(whatDay == 2)
-            {
-               dayOne->hide();
-               dayThree->hide();
-               dayFour->hide();
-               dayFive->hide();
-               daySix->hide();
-               daySeven->hide();
-               flagHide = 1;
-            }
-            if(whatDay == 3)
-            {
-               dayOne->hide();
-               dayTwo->hide();
-               dayFour->hide();
-               dayFive->hide();
-               daySix->hide();
-               daySeven->hide();
-               flagHide = 1;
-            }
-            if(whatDay == 4)
-            {
-               dayOne->hide();
-               dayTwo->hide();
-               dayThree->hide();
-               dayFive->hide();
-               daySix->hide();
-               daySeven->hide();
-               flagHide = 1;
-            }
-            if(whatDay == 5)
-            {
-               dayOne->hide();
-               dayTwo->hide();
-               dayThree->hide();
-               dayFour->hide();
-               daySix->hide();
-               daySeven->hide();
-               flagHide = 1;
-            }
-            if(whatDay == 6)
-            {
-               dayOne->hide();
-               dayFive->hide();
-               dayTwo->hide();
-               dayThree->hide();
-               dayFour->hide();
-               daySeven->hide();
-               flagHide = 1;
-            }
-            if(whatDay == 7)
-            {
-               dayOne->hide();
-               dayTwo->hide();
-               dayFive->hide();
-               daySix->hide();
-               dayThree->hide();
-               dayFour->hide();
-               flagHide = 1;
-            }
     }
+    //If month has 29 days, and selected range of days is greater than 28
+    //Then this condition is hiding rest of buttons, setting flag to 1.
+    //Flag is reseted in navigationLeftClicked and navigationRightClicked fcn.
+    if( month  == 2 && day == 29)
+    {
+        if(whatDay == 1)
+        {  dayTwo->hide();
+           dayThree->hide();
+           dayFour->hide();
+           dayFive->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 2)
+        {
+           dayOne->hide();
+           dayThree->hide();
+           dayFour->hide();
+           dayFive->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 3)
+        {
+           dayOne->hide();
+           dayTwo->hide();
+           dayFour->hide();
+           dayFive->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 4)
+        {
+           dayOne->hide();
+           dayTwo->hide();
+           dayThree->hide();
+           dayFive->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 5)
+        {
+           dayOne->hide();
+           dayTwo->hide();
+           dayThree->hide();
+           dayFour->hide();
+           daySix->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 6)
+        {
+           dayOne->hide();
+           dayFive->hide();
+           dayTwo->hide();
+           dayThree->hide();
+           dayFour->hide();
+           daySeven->hide();
+           flagHide = 1;
+        }
+        if(whatDay == 7)
+        {
+           dayOne->hide();
+           dayTwo->hide();
+           dayFive->hide();
+           daySix->hide();
+           dayThree->hide();
+           dayFour->hide();
+           flagHide = 1;
+        }
   }
 }
 
