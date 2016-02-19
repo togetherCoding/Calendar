@@ -1,15 +1,16 @@
 #include "event.h"
 
-Event::Event(QString name, QTime startTime, QTime endTime)
+Event::Event(QString name, QTime startTime, QTime endTime, QDate date)
 {
     this->name = name;
     this->startTime = startTime;
     this->endTime = endTime;
+    this->date = date;
 }
 
-int Event::getID()
+QDate Event::getDate()
 {
-    return id;
+    return date;
 }
 
 QString Event::getName()
@@ -29,5 +30,5 @@ QTime Event::getStartTime()
 
 QTime Event::getEndTime()
 {
-    return startTime;
+    return endTime;
 }
