@@ -40,6 +40,8 @@ Calendar::Calendar()
     connect(navigationRight,SIGNAL(pressed()),this,SLOT(navigationRightClicked()));
 
 
+/* Signal mapper is used to send parameter to slot method. The parameter here is
+ * integer which reprenets offset of certain days of week. */
 
     QSignalMapper* signalMapper = new QSignalMapper(this);              // signal mapping is needed to parametrize slot :(
 
@@ -60,6 +62,10 @@ Calendar::Calendar()
     signalMapper->setMapping(daySeven, 6);
 
     connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(scheduleDay(int)));
+
+/*  The array of pointers to Event objects. It simply remembers list of tasks.
+ *  It contains pointers because if i'd like to create, let's say, 1000 objects staticly
+ *  it would take relatively much memory. */
 
     eventList = new Event*[100];             // constant number of events [ temporary ]
     eventListCounter = 0;
@@ -267,10 +273,15 @@ void Calendar::navigationRightClicked()
     sortButtons();
 }
 
+
+/* This method is slot for day-buttons clicked() signal. It takes dayID argument
+ * which is offset of certain days of week. Main job of this method is to create
+ * window with controls/widgets which enable adding new taks and showing list of
+ * already added tasks. */
 void Calendar::scheduleDay(int dayID)
 {
 
-    qDebug() << year << " " << month << " " << day << " " << dayID;
+    // Creation of interface widgets
 
     createWindow = new QWidget();
 
@@ -278,7 +289,7 @@ void Calendar::scheduleDay(int dayID)
     taskNameLabel = new QLabel("Task:");
     taskStartTimeLabel = new QLabel("Start:");
     taskEndTimeLabel = new QLabel("Finish:");
-    taskNameList = new QLabel[5];
+    taskNameList = new QLabel[5];                           // array of labels for task description... similiar below
     taskStartTimeList = new QLabel[5];
     taskEndTimeList = new QLabel[5];
     taskIn = new QLineEdit;
@@ -286,8 +297,9 @@ void Calendar::scheduleDay(int dayID)
     endTime = new QTimeEdit;
     taskAccept = new QPushButton("Ok");
 
-
     taskIn->text();
+
+    // Creation of interface layout. Numbers represent position of widget in layout grid.
 
     taskLayout->addWidget(taskNameLabel, 1, 1);
     taskLayout->addWidget(taskStartTimeLabel, 1, 2);
@@ -320,34 +332,42 @@ void Calendar::scheduleDay(int dayID)
     createWindow->setLayout(taskLayout);
     createWindow->show();
 
-    connect(taskAccept, SIGNAL(clicked(bool)),this,SLOT(makeList()));
 
-    activeDate = new QDate(year, month, day + dayID);
+    connect(taskAccept, SIGNAL(clicked(bool)),this,SLOT(makeList()));   // acceptation of entered data
+
+    activeDate = new QDate(year, month, day + dayID);                   // date of clicked day
     updateTaskWindow();
 
 }
+
+/* This is slot method for accept-button. It creates Event objects
+ * which parameters are based on entered data. */
 void Calendar::makeList()
 {
 
     eventList[eventListCounter++] = new Event(taskIn->text(), startTime->time(), endTime->time(), *activeDate);
 
-    updateTaskWindow();
+    updateTaskWindow();     // there's need to update task list display just after adding new task
 }
+
+/* Method which displays list of tasks. Whole operation consists in
+ * comparing dates of all Event objects in eventList to date of clicked
+ * day of week. If dates are equal, correspoding Event objects are displayed
+ * using labels. */
 
 void Calendar::updateTaskWindow()
 {
-    int taskCounter = 0;
+    int taskCounter = 0; // counter of correct date comparisons, also index of labels
 
     for(int i = 0; i < eventListCounter; i++)
     {
-
         if(eventList[i]->getDate() ==  *activeDate)
         {
             QString tempName;
             tempName = eventList[i]->getName();
 
             QString tempStartTime;
-            tempStartTime = eventList[i]->getStartTime().toString("hh:mm");
+            tempStartTime = eventList[i]->getStartTime().toString("hh:mm"); // "hh:mm" is format of string to be created
 
             QString tempEndTime;
             tempEndTime = eventList[i]->getEndTime().toString("hh:mm");
