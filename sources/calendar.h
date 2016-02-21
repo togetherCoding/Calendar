@@ -62,6 +62,8 @@ private:
     Event       **eventList;
 
     int         eventListCounter;
+    int         taskCounter;
+    int         actualWeek;
 
 private slots:
      void navigationLeftClicked();
@@ -70,6 +72,7 @@ private slots:
      void makeList();
      void sortButtons();
      void updateTaskWindow();
+     void locateTask();
 
 };
 
