@@ -130,16 +130,15 @@ QString Calendar::dateToString(int day, int month, int year)
                          "22-28",
                           "29-31"};
         if(day>0 && day<=7)
-        currentDay = days[0];
-        if(day>7 && day<=14)
-        currentDay = days[1];
-        if(day>14 && day<=21)
-        currentDay = days[2];
-        if(day>21 && day<=28)
-        currentDay = days[3];
-        if(day>28 && day<=31)
-        currentDay = days[4];
-
+            currentDay = days[0];
+        else if(day>7 && day<=14)
+            currentDay = days[1];
+        else if(day>14 && day<=21)
+            currentDay = days[2];
+        else if(day>21 && day<=28)
+            currentDay = days[3];
+        else if(day>28 && day<=31)
+            currentDay = days[4];
      }
     if( month % 2 == 0 && month != 2 && month != 8)
     {
@@ -149,15 +148,15 @@ QString Calendar::dateToString(int day, int month, int year)
                          "22-28",
                           "29-30"};
         if(day>0 && day<=7)
-        currentDay = days[0];
-        if(day>7 && day<=14)
-        currentDay = days[1];
-        if(day>14 && day<=21)
-        currentDay = days[2];
-        if(day>21 && day<=28)
-        currentDay = days[3];
-        if(day>28 && day<=30)
-        currentDay = days[4];
+             currentDay = days[0];
+        else if(day>7 && day<=14)
+             currentDay = days[1];
+        else if(day>14 && day<=21)
+             currentDay = days[2];
+        else if(day>21 && day<=28)
+             currentDay = days[3];
+        else if(day>28 && day<=30)
+            currentDay = days[4];
     }
     if ( month == 2)
     {
@@ -168,15 +167,15 @@ QString Calendar::dateToString(int day, int month, int year)
                              "15-21",
                              "22-28","29"};
             if(day>0 && day<=7)
-            currentDay = days[0];
-            if(day>7 && day<=14)
-            currentDay = days[1];
-            if(day>14 && day<=21)
-            currentDay = days[2];
-            if(day>21 && day<=28)
-            currentDay = days[3];
-            if(day == 29)
-            currentDay = days[4];
+                currentDay = days[0];
+            else if(day>7 && day<=14)
+                currentDay = days[1];
+            else if(day>14 && day<=21)
+                currentDay = days[2];
+            else if(day>21 && day<=28)
+                currentDay = days[3];
+            else if(day == 29)
+                currentDay = days[4];
         }
         else
         {
@@ -185,13 +184,13 @@ QString Calendar::dateToString(int day, int month, int year)
                              "15-21",
                              "22-28"};
             if(day>0 && day<=7)
-            currentDay = days[0];
-            if(day>7 && day<=14)
-            currentDay = days[1];
-            if(day>14 && day<=21)
-            currentDay = days[2];
-            if(day>21 && day<=28)
-            currentDay = days[3];
+                currentDay = days[0];
+            else if(day>7 && day<=14)
+                currentDay = days[1];
+            else if(day>14 && day<=21)
+                currentDay = days[2];
+            else if(day>21 && day<=28)
+                currentDay = days[3];
         }
     }
     QString separator = "  ";
@@ -227,13 +226,13 @@ void Calendar::navigationLeftClicked()
       day buttons are hidden in sortButtons function below. */
    if(flagHide == 1)
    {
-   dayOne->show();
-   dayTwo->show();
-   dayThree->show();
-   dayFour->show();
-   dayFive->show();
-   daySix->show();
-   daySeven->show();
+    dayOne->show();
+    dayTwo->show();
+    dayThree->show();
+    dayFour->show();
+    dayFive->show();
+    daySix->show();
+    daySeven->show();
    }
 
    currentDateLabel = dateToString(day,month,year);
@@ -706,22 +705,23 @@ void Calendar::locateTask()
 
     if(weekID==actualWeek)
     {
-        if(dayID==0)
-            dayOne->setStyleSheet("background-color:red");
         if(dayID==1)
+            dayOne->setStyleSheet("background-color:red");
+        else if(dayID==2)
             dayTwo->setStyleSheet("background-color:red");
-        if(dayID==2)
+        else if(dayID==3)
             dayThree->setStyleSheet("background-color:red");
-        if(dayID==3)
+        else if(dayID==4)
             dayFour->setStyleSheet("background-color:red");
-        if(dayID==4)
+        else if(dayID==5)
             dayFive->setStyleSheet("background-color:red");
-        if(dayID==5)
+        else if(dayID==6)
             daySix->setStyleSheet("background-color:red");
-        if(dayID==6)
+        else if(dayID==7)
             daySeven->setStyleSheet("background-color:red");
     }
     else
+    {
         dayOne->setStyleSheet("background-color:none");
         dayTwo->setStyleSheet("background-color:none");
         dayThree->setStyleSheet("background-color:none");
@@ -729,6 +729,7 @@ void Calendar::locateTask()
         dayFive->setStyleSheet("background-color:none");
         daySix->setStyleSheet("background-color:none");
         daySeven->setStyleSheet("background-color:none");
+    }
 
 qDebug() << "weekID = " << weekID;
 qDebug() << "actualWeek = " << actualWeek;
