@@ -35,11 +35,14 @@ private:
     QLabel      *taskNameLabel;
     QLabel      *taskStartTimeLabel;
     QLabel      *taskEndTimeLabel;
+    QLabel      *taskCheckBoxLabel;
 
     QVBoxLayout *mainLayout;        //layouts
     QHBoxLayout *daysLayout;
     QHBoxLayout *navigationLayout;
     QGridLayout *taskLayout;
+
+    QCheckBox   *taskCheckBox;      //check boxes
 
     QString     currentDateLabel;   //strings
 
@@ -62,6 +65,8 @@ private:
     Event       **eventList;
 
     int         eventListCounter;
+    int         taskCounter;
+    int         actualWeek;
 
 private slots:
      void navigationLeftClicked();
@@ -70,6 +75,8 @@ private slots:
      void makeList();
      void sortButtons();
      void updateTaskWindow();
+     void locateTask();
+     void noTaskTime();
 
 };
 

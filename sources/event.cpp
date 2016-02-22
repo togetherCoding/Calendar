@@ -7,7 +7,11 @@ Event::Event(QString name, QTime startTime, QTime endTime, QDate date)
     this->endTime = endTime;
     this->date = date;
 }
-
+Event::Event(QString name, QDate date)
+{
+    this->name = name;
+    this->date = date;
+}
 QDate Event::getDate()
 {
     return date;
