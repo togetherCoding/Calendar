@@ -64,6 +64,7 @@ private:
     int         eventListCounter;
     int         taskCounter;
     int         actualWeek;
+    int         firstDay;
 
 private slots:
      void navigationLeftClicked();

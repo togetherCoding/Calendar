@@ -110,6 +110,18 @@ QString Calendar::dateToString(int day, int month, int year)
         break;
     }
 
+    if(day>0 && day<=7)
+        firstDay = 1;
+    else if(day>7 && day<=14)
+        firstDay = 8;
+    else if(day>14 && day<=21)
+        firstDay = 15;
+    else if(day>21 && day<=28)
+        firstDay = 22;
+    else if(day>28)
+        firstDay = 29;
+
+
     if( month % 2 != 0 || month == 8 )
     {
         QString days[]=     {"1-7",
@@ -127,6 +139,7 @@ QString Calendar::dateToString(int day, int month, int year)
         currentDay = days[3];
         if(day>28 && day<=31)
         currentDay = days[4];
+
      }
     if( month % 2 == 0 && month != 2 && month != 8)
     {
@@ -346,7 +359,9 @@ void Calendar::scheduleDay(int dayID)
     connect(taskAccept, SIGNAL(clicked(bool)),this,SLOT(makeList()));   // acceptation of entered data
     connect(taskAccept,SIGNAL(clicked(bool)),this,SLOT(locateTask()));  // sets mark at the day with task
 
-    activeDate = new QDate(year, month, day + dayID);                   // date of clicked day
+    activeDate = new QDate(year, month, firstDay + dayID - whatDay + 1);                   // date of clicked day
+
+    qDebug() << activeDate->toString();
 
     updateTaskWindow();}
 
@@ -714,7 +729,6 @@ void Calendar::locateTask()
         dayFive->setStyleSheet("background-color:none");
         daySix->setStyleSheet("background-color:none");
         daySeven->setStyleSheet("background-color:none");
-
 
 qDebug() << "weekID = " << weekID;
 qDebug() << "actualWeek = " << actualWeek;
