@@ -66,6 +66,10 @@ private:
     int         actualWeek;
     int         firstDay;
 
+    QScrollArea *scrollArea;
+
+    QGridLayout *scrollAreaLayout;
+
 private slots:
      void navigationLeftClicked();
      void navigationRightClicked();

@@ -65,11 +65,6 @@ Calendar::Calendar()
 
     connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(scheduleDay(int)));
 
-/*  The array of pointers to Event objects. It simply remembers list of tasks.
- *  It contains pointers because if i'd like to create, let's say, 1000 objects staticly
- *  it would take relatively much memory. */
-
-    eventList = new Event*[100];             // constant number of events [ temporary ]
     eventListCounter = 0;
 }
 
@@ -302,7 +297,35 @@ void Calendar::navigationRightClicked()
  * already added tasks. */
 void Calendar::scheduleDay(int dayID)
 {
+//    createWindow = new QWidget();
 
+//    scrollArea = new QScrollArea;
+
+//    QGridLayout *lay = new QGridLayout();
+
+//    QVBoxLayout *layScroll = new QVBoxLayout();
+
+//    QLabel *one = new QLabel("1");
+//    QLabel *two = new QLabel("2");
+//    QLabel *three = new QLabel("3");
+//    QLabel *four = new QLabel("4");
+//    QLabel *five = new QLabel("5");
+//    QLabel *six = new QLabel("6");
+//    QLabel *seven = new QLabel("7");
+//    QLabel *eight = new QLabel("8");
+//    QLabel *nine = new QLabel("9");
+//    QLabel *ten = new QLabel("10");
+
+//    lay->addWidget(one,1, 1);
+//    lay->addWidget(two,1, 2);
+//    layScroll->addWidget(three);
+//    layScroll->addWidget(four);
+//    layScroll->addWidget(five);
+//    scrollArea->setLayout(layScroll);
+//    lay->addWidget(scrollArea, 3, 1);
+//    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+//    createWindow->setLayout(lay);
+//    createWindow->show();
     // Creation of interface widgets
 
     createWindow = new QWidget();
@@ -311,9 +334,9 @@ void Calendar::scheduleDay(int dayID)
     taskNameLabel = new QLabel("Task:");
     taskStartTimeLabel = new QLabel("Start:");
     taskEndTimeLabel = new QLabel("Finish:");
-    taskNameList = new QLabel[5];                           // array of labels for task description... similiar below
-    taskStartTimeList = new QLabel[5];
-    taskEndTimeList = new QLabel[5];
+//    taskNameList = new QLabel[1];                           // array of labels for task description... similiar below
+//    taskStartTimeList = new QLabel[1];
+//    taskEndTimeList = new QLabel[1];
     taskIn = new QLineEdit;
     startTime = new QTimeEdit;
     endTime = new QTimeEdit;
@@ -331,24 +354,33 @@ void Calendar::scheduleDay(int dayID)
     taskLayout->addWidget(endTime, 2, 3);
     taskLayout->addWidget(taskAccept, 2, 4);
 
-    taskLayout->addWidget(&taskNameList[0], 3, 1);
-    taskLayout->addWidget(&taskNameList[1], 4, 1);
-    taskLayout->addWidget(&taskNameList[2], 5, 1);
-    taskLayout->addWidget(&taskNameList[3], 6, 1);
-    taskLayout->addWidget(&taskNameList[4], 7, 1);
+    scrollArea = new QScrollArea;
+    scrollAreaLayout = new QGridLayout;
 
-    taskLayout->addWidget(&taskStartTimeList[0], 3, 2);
-    taskLayout->addWidget(&taskStartTimeList[1], 4, 2);
-    taskLayout->addWidget(&taskStartTimeList[2], 5, 2);
-    taskLayout->addWidget(&taskStartTimeList[3], 6, 2);
-    taskLayout->addWidget(&taskStartTimeList[4], 7, 2);
+    scrollArea->setWidgetResizable(true);
+//    scrollAreaLayout->addWidget(&taskNameList[0], 1, 1);
+//    scrollAreaLayout->addWidget(&taskNameList[1], 2, 1);
+//    scrollAreaLayout->addWidget(&taskNameList[2], 3, 1);
+//    scrollAreaLayout->addWidget(&taskNameList[3], 4, 1);
+//    scrollAreaLayout->addWidget(&taskNameList[4], 5, 1);
 
-    taskLayout->addWidget(&taskEndTimeList[0], 3, 3, 1, 2);
-    taskLayout->addWidget(&taskEndTimeList[1], 4, 3, 1, 2);
-    taskLayout->addWidget(&taskEndTimeList[2], 5, 3, 1, 2);
-    taskLayout->addWidget(&taskEndTimeList[3], 6, 3, 1, 2);
-    taskLayout->addWidget(&taskEndTimeList[4], 7, 3, 1, 2);
+//    scrollAreaLayout->addWidget(&taskStartTimeList[0], 1, 2);
+//    scrollAreaLayout->addWidget(&taskStartTimeList[1], 2, 2);
+//    scrollAreaLayout->addWidget(&taskStartTimeList[2], 3, 2);
+//    scrollAreaLayout->addWidget(&taskStartTimeList[3], 4, 2);
+//    scrollAreaLayout->addWidget(&taskStartTimeList[4], 5, 2);
 
+//    scrollAreaLayout->addWidget(&taskEndTimeList[0], 1, 3, 1, 2);
+//    scrollAreaLayout->addWidget(&taskEndTimeList[1], 2, 3, 1, 2);
+//    scrollAreaLayout->addWidget(&taskEndTimeList[2], 3, 3, 1, 2);
+//    scrollAreaLayout->addWidget(&taskEndTimeList[3], 4, 3, 1, 2);
+//    scrollAreaLayout->addWidget(&taskEndTimeList[4], 5, 3, 1, 2);
+
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+    scrollArea->setLayout(scrollAreaLayout);
+
+    taskLayout->addWidget(scrollArea, 3, 1, 1, 3);
 
     createWindow->setWindowTitle("Add new task");
     createWindow->setLayout(taskLayout);
@@ -358,16 +390,41 @@ void Calendar::scheduleDay(int dayID)
     connect(taskAccept, SIGNAL(clicked(bool)),this,SLOT(makeList()));   // acceptation of entered data
     connect(taskAccept,SIGNAL(clicked(bool)),this,SLOT(locateTask()));  // sets mark at the day with task
 
-    activeDate = new QDate(year, month, firstDay + dayID - whatDay + 1);                   // date of clicked day
+    int additionalVariable;
 
+    if(dayID + 1 >= whatDay)
+        additionalVariable = -whatDay;
+    else
+        additionalVariable = 7 - whatDay;
+
+    activeDate = new QDate(year, month, firstDay + dayID + additionalVariable + 1);                   // date of clicked day
+
+    qDebug() << firstDay << " + " << dayID << " + " << additionalVariable << " + 1";
     qDebug() << activeDate->toString();
 
-    updateTaskWindow();}
+    updateTaskWindow();
+}
 
 /* This is slot method for accept-button. It creates Event objects
  * which parameters are based on entered data. */
 void Calendar::makeList()
 {
+    Event **eventListMemory;
+
+    if(eventListCounter > 0)
+        eventListMemory = eventList;
+
+    eventList = new Event*[eventListCounter + 1];                 // array of pointers to Event objects
+                                                                 // different than future situation of loading from file
+    if(eventListCounter > 0)
+    {
+        for(int i = 0; i < eventListCounter; i++)
+        {
+            eventList[i] = eventListMemory[i];
+        }
+
+        delete[] eventListMemory;
+    }
 
     eventList[eventListCounter++] = new Event(taskIn->text(), startTime->time(), endTime->time(), *activeDate);
 
@@ -396,9 +453,44 @@ void Calendar::updateTaskWindow()
             QString tempEndTime;
             tempEndTime = eventList[i]->getEndTime().toString("hh:mm");
 
+            QLabel *taskNameListMemory;
+            QLabel *taskStartTimeListMemory;
+            QLabel *taskEndTimeListMemory;
+
+            if(taskCounter > 0)
+            {
+                taskNameListMemory = taskNameList;
+                taskStartTimeListMemory = taskStartTimeList;
+                taskEndTimeListMemory = taskEndTimeList;
+            }
+
+            taskNameList = new QLabel[taskCounter + 1];
+            taskStartTimeList = new QLabel[taskCounter + 1];
+            taskEndTimeList = new QLabel[taskCounter + 1];
+
+            if(taskCounter > 0)
+            {
+                for(int i = 0; i < taskCounter; i++)
+                {
+                    taskNameList[i].setText(taskNameListMemory[i].text());
+                    taskStartTimeList[i].setText(taskStartTimeListMemory[i].text());
+                    taskEndTimeList[i].setText(taskEndTimeListMemory[i].text());
+                }
+
+                delete[] taskNameListMemory;
+                delete[] taskStartTimeListMemory;
+                delete[] taskEndTimeListMemory;
+            }
+
             taskNameList[taskCounter].setText(tempName);
             taskStartTimeList[taskCounter].setText(tempStartTime);
             taskEndTimeList[taskCounter].setText(tempEndTime);
+
+            scrollAreaLayout->addWidget(&taskNameList[taskCounter], taskCounter + 1, 1);
+            scrollAreaLayout->addWidget(&taskStartTimeList[taskCounter], taskCounter + 1, 2);
+            scrollAreaLayout->addWidget(&taskEndTimeList[taskCounter], taskCounter + 1, 3);
+
+            scrollArea->setLayout(scrollAreaLayout);
 
             taskCounter++;
         }
