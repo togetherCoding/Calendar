@@ -377,7 +377,6 @@ void Calendar::scheduleDay(int dayID)
 //    scrollAreaLayout->addWidget(&taskEndTimeList[4], 5, 3, 1, 2);
 
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-
     scrollArea->setLayout(scrollAreaLayout);
 
     taskLayout->addWidget(scrollArea, 3, 1, 1, 3);
@@ -399,8 +398,6 @@ void Calendar::scheduleDay(int dayID)
 
     activeDate = new QDate(year, month, firstDay + dayID + additionalVariable + 1);                   // date of clicked day
 
-    qDebug() << firstDay << " + " << dayID << " + " << additionalVariable << " + 1";
-    qDebug() << activeDate->toString();
 
     updateTaskWindow();
 }
@@ -438,6 +435,11 @@ void Calendar::makeList()
 
 void Calendar::updateTaskWindow()
 {
+
+    static int licznikUpdatow;
+    licznikUpdatow++;
+
+
     taskCounter = 0; // counter of correct date comparisons, also index of labels
 
     for(int i = 0; i < eventListCounter; i++)
@@ -486,9 +488,13 @@ void Calendar::updateTaskWindow()
             taskStartTimeList[taskCounter].setText(tempStartTime);
             taskEndTimeList[taskCounter].setText(tempEndTime);
 
+            qDebug() << "update nr " << licznikUpdatow;
+            qDebug() << "znalazlem event " + taskNameList[taskCounter].text();
             scrollAreaLayout->addWidget(&taskNameList[taskCounter], taskCounter + 1, 1);
             scrollAreaLayout->addWidget(&taskStartTimeList[taskCounter], taskCounter + 1, 2);
             scrollAreaLayout->addWidget(&taskEndTimeList[taskCounter], taskCounter + 1, 3);
+
+            qDebug() << "Liczba widgetow: " << scrollAreaLayout->count() << " a taskCounter: " << taskCounter;
 
             scrollArea->setLayout(scrollAreaLayout);
 
@@ -822,13 +828,6 @@ void Calendar::locateTask()
         daySix->setStyleSheet("background-color:none");
         daySeven->setStyleSheet("background-color:none");
     }
-
-qDebug() << "weekID = " << weekID;
-qDebug() << "actualWeek = " << actualWeek;
-qDebug() << "dayID = " <<dayID;
-qDebug() << "day " << day;
-
-
 }
 
 Calendar::~Calendar(){}
