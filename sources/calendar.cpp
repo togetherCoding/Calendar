@@ -65,11 +65,6 @@ Calendar::Calendar()
 
     connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(scheduleDay(int)));
 
-/*  The array of pointers to Event objects. It simply remembers list of tasks.
- *  It contains pointers because if i'd like to create, let's say, 1000 objects staticly
- *  it would take relatively much memory. */
-
-    eventList = new Event*[100];             // constant number of events [ temporary ]
     eventListCounter = 0;
 }
 
@@ -302,7 +297,6 @@ void Calendar::navigationRightClicked()
  * already added tasks. */
 void Calendar::scheduleDay(int dayID)
 {
-
     // Creation of interface widgets
 
     createWindow = new QWidget();
@@ -311,9 +305,9 @@ void Calendar::scheduleDay(int dayID)
     taskNameLabel = new QLabel("Task:");
     taskStartTimeLabel = new QLabel("Start:");
     taskEndTimeLabel = new QLabel("Finish:");
-    taskNameList = new QLabel[5];                           // array of labels for task description... similiar below
-    taskStartTimeList = new QLabel[5];
-    taskEndTimeList = new QLabel[5];
+    taskNameList = new QLabel[1];                           // array of labels for task description... similiar below
+    taskStartTimeList = new QLabel[1];
+    taskEndTimeList = new QLabel[1];
     taskIn = new QLineEdit;
     startTime = new QTimeEdit;
     endTime = new QTimeEdit;
@@ -331,43 +325,57 @@ void Calendar::scheduleDay(int dayID)
     taskLayout->addWidget(endTime, 2, 3);
     taskLayout->addWidget(taskAccept, 2, 4);
 
-    taskLayout->addWidget(&taskNameList[0], 3, 1);
-    taskLayout->addWidget(&taskNameList[1], 4, 1);
-    taskLayout->addWidget(&taskNameList[2], 5, 1);
-    taskLayout->addWidget(&taskNameList[3], 6, 1);
-    taskLayout->addWidget(&taskNameList[4], 7, 1);
+    scrollArea = new QScrollArea;
 
-    taskLayout->addWidget(&taskStartTimeList[0], 3, 2);
-    taskLayout->addWidget(&taskStartTimeList[1], 4, 2);
-    taskLayout->addWidget(&taskStartTimeList[2], 5, 2);
-    taskLayout->addWidget(&taskStartTimeList[3], 6, 2);
-    taskLayout->addWidget(&taskStartTimeList[4], 7, 2);
+    scrollAreaLayout = new QGridLayout;
 
-    taskLayout->addWidget(&taskEndTimeList[0], 3, 3, 1, 2);
-    taskLayout->addWidget(&taskEndTimeList[1], 4, 3, 1, 2);
-    taskLayout->addWidget(&taskEndTimeList[2], 5, 3, 1, 2);
-    taskLayout->addWidget(&taskEndTimeList[3], 6, 3, 1, 2);
-    taskLayout->addWidget(&taskEndTimeList[4], 7, 3, 1, 2);
+    scrollArea->setWidgetResizable(true);
 
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    scrollArea->setLayout(scrollAreaLayout);
+
+    taskLayout->addWidget(scrollArea, 3, 1, 1, 3);
 
     createWindow->setWindowTitle("Add new task");
     createWindow->setLayout(taskLayout);
     createWindow->show();
 
-
     connect(taskAccept, SIGNAL(clicked(bool)),this,SLOT(makeList()));   // acceptation of entered data
     connect(taskAccept,SIGNAL(clicked(bool)),this,SLOT(locateTask()));  // sets mark at the day with task
 
-    activeDate = new QDate(year, month, firstDay + dayID - whatDay + 1);                   // date of clicked day
+    int additionalVariable;
 
-    qDebug() << activeDate->toString();
+    if(dayID + 1 >= whatDay)
+        additionalVariable = -whatDay;
+    else
+        additionalVariable = 7 - whatDay;
 
-    updateTaskWindow();}
+    activeDate = new QDate(year, month, firstDay + dayID + additionalVariable + 1);                   // date of clicked day
+
+
+    updateTaskWindow();
+}
 
 /* This is slot method for accept-button. It creates Event objects
  * which parameters are based on entered data. */
 void Calendar::makeList()
 {
+    Event **eventListMemory;
+
+    if(eventListCounter > 0)
+        eventListMemory = eventList;
+
+    eventList = new Event*[eventListCounter + 1];                 // array of pointers to Event objects
+                                                                 // different than future situation of loading from file
+    if(eventListCounter > 0)
+    {
+        for(int i = 0; i < eventListCounter; i++)
+        {
+            eventList[i] = eventListMemory[i];
+        }
+
+        delete[] eventListMemory;
+    }
 
     eventList[eventListCounter++] = new Event(taskIn->text(), startTime->time(), endTime->time(), *activeDate);
 
@@ -381,6 +389,11 @@ void Calendar::makeList()
 
 void Calendar::updateTaskWindow()
 {
+
+    static int licznikUpdatow;
+    licznikUpdatow++;
+
+
     taskCounter = 0; // counter of correct date comparisons, also index of labels
 
     for(int i = 0; i < eventListCounter; i++)
@@ -396,12 +409,53 @@ void Calendar::updateTaskWindow()
             QString tempEndTime;
             tempEndTime = eventList[i]->getEndTime().toString("hh:mm");
 
+            // rewriting smaller array to bigger one
+
+            QLabel *taskNameListMemory;
+            QLabel *taskStartTimeListMemory;
+            QLabel *taskEndTimeListMemory;
+
+            if(taskCounter > 0)
+            {
+                taskNameListMemory = taskNameList;
+                taskStartTimeListMemory = taskStartTimeList;
+                taskEndTimeListMemory = taskEndTimeList;
+
+                taskNameList = new QLabel[taskCounter + 1];
+                taskStartTimeList = new QLabel[taskCounter + 1];
+                taskEndTimeList = new QLabel[taskCounter + 1];
+
+                for(int i = 0; i < taskCounter; i++)
+                {
+                    taskNameList[i].setText(taskNameListMemory[i].text());
+                    taskStartTimeList[i].setText(taskStartTimeListMemory[i].text());
+                    taskEndTimeList[i].setText(taskEndTimeListMemory[i].text());
+                }
+
+                delete[] taskNameListMemory;
+                delete[] taskStartTimeListMemory;
+                delete[] taskEndTimeListMemory;
+            }
+
+            // setting most current labels
+
             taskNameList[taskCounter].setText(tempName);
             taskStartTimeList[taskCounter].setText(tempStartTime);
             taskEndTimeList[taskCounter].setText(tempEndTime);
 
             taskCounter++;
         }
+    }
+
+    removeLayout(scrollAreaLayout);     // removing all widgets in layout
+
+    // adding all necessary labels to visualize tasks associated with active day
+
+    for(int i = 0; i < taskCounter; i++)
+    {
+        scrollAreaLayout->addWidget(&taskNameList[i], i + 1, 1);
+        scrollAreaLayout->addWidget(&taskStartTimeList[i], i + 1, 2);
+        scrollAreaLayout->addWidget(&taskEndTimeList[i], i + 1, 3);
     }
 }
 void Calendar::sortButtons()
@@ -730,13 +784,19 @@ void Calendar::locateTask()
         daySix->setStyleSheet("background-color:none");
         daySeven->setStyleSheet("background-color:none");
     }
+}
 
-qDebug() << "weekID = " << weekID;
-qDebug() << "actualWeek = " << actualWeek;
-qDebug() << "dayID = " <<dayID;
-qDebug() << "day " << day;
+//This method is removing all widgets from layout
+void Calendar::removeLayout(QLayout *layout)
+{
+    QLayoutItem *child;
 
+    while(layout->count() != 0)
+    {
+        child = layout->takeAt(0);
 
+        delete child->widget();
+    }
 }
 
 Calendar::~Calendar(){}
