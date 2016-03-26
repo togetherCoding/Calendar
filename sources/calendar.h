@@ -70,6 +70,7 @@ private:
 
     QGridLayout *scrollAreaLayout;
 
+
 private slots:
      void navigationLeftClicked();
      void navigationRightClicked();
@@ -78,6 +79,6 @@ private slots:
      void sortButtons();
      void updateTaskWindow();
      void locateTask();
-
+     void removeLayout(QLayout *layout);
 };
 
