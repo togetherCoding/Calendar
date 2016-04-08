@@ -4,6 +4,22 @@
 #include <QObject>
 #include "event.h"
 
+class Day : public QPushButton
+{
+    Q_OBJECT
+
+public:
+    explicit Day();
+    explicit Day(QString name) : QPushButton(name){}
+    void setDate(QDate date);
+    QDate getDate();
+
+private:
+    QDate date;
+};
+
+// ###################################
+// ###################################
 
 class Calendar : public QWidget
 {
@@ -12,17 +28,15 @@ class Calendar : public QWidget
 public:
     explicit Calendar();
     QString dateToString(int day, int month, int year);
-
+    void determineDates(int firstDay, int mode);
+    void saveEvents(); // delete before first commit
+    void loadEvents(); // delete before first commit
     ~Calendar();
 
 private:
-    QPushButton *dayOne;            //buttons
-    QPushButton *dayTwo;
-    QPushButton *dayThree;
-    QPushButton *dayFour;
-    QPushButton *dayFive;
-    QPushButton *daySix;
-    QPushButton *daySeven;
+    Day **days;            // day buttons
+
+
     QPushButton *navigationLeft;
     QPushButton *navigationRight;
     QPushButton *taskAccept;
@@ -78,7 +92,8 @@ private slots:
      void makeList();
      void sortButtons();
      void updateTaskWindow();
-     void locateTask();
+     void colorTask();
      void removeLayout(QLayout *layout);
-};
+     void closeEvent(QCloseEvent *event);
 
+};

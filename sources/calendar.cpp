@@ -2,20 +2,36 @@
 
 Calendar::Calendar()
 {
+    eventListCounter = 0;
+    loadEvents();
+
     actualDate = new QDate;
     *actualDate = QDate::currentDate();                      //get's information about current date and sets proper label
     int actualDay, actualMonth, actualYear;
     actualDate->getDate(&actualDay, &actualMonth, &actualYear);
 
+    // essential variables initialization
+
+    actualDate->getDate(&year,&month,&day);
+    QDate dayOfWeek(year,month,1);      //gets information about first day of selected month and year
+    whatDay = dayOfWeek.dayOfWeek();
+
+    // end of essential variables initialization
+
     actualWeek = actualDate->weekNumber();
 
-    dayOne = new QPushButton("Monday");
-    dayTwo = new QPushButton("Tuesday");
-    dayThree = new QPushButton("Wednesday");
-    dayFour = new QPushButton("Thursday");
-    dayFive = new QPushButton("Friday");
-    daySix = new QPushButton("Saturday");
-    daySeven = new QPushButton("Sunday");
+    // future note: array are better than days[0], days[1], days[2]... :P
+
+    days = new Day*[7];
+
+    days[0] = new Day("Monday");
+    days[1] = new Day("Tuesday");
+    days[2] = new Day("Wednesday");
+    days[3] = new Day("Thursday");
+    days[4] = new Day("Friday");
+    days[5] = new Day("Saturday");
+    days[6] = new Day("Sunday");
+
 
     daysLayout = new QHBoxLayout;
 
@@ -47,25 +63,25 @@ Calendar::Calendar()
 
     QSignalMapper* signalMapper = new QSignalMapper(this);              // signal mapping is needed to parametrize slot :(
 
-    connect(dayOne, SIGNAL(pressed()), signalMapper, SLOT(map()));
-    connect(dayTwo, SIGNAL(pressed()), signalMapper, SLOT(map()));
-    connect(dayThree, SIGNAL(pressed()), signalMapper, SLOT(map()));
-    connect(dayFour, SIGNAL(pressed()), signalMapper, SLOT(map()));
-    connect(dayFive, SIGNAL(pressed()), signalMapper, SLOT(map()));
-    connect(daySix, SIGNAL(pressed()), signalMapper, SLOT(map()));
-    connect(daySeven, SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(days[0], SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(days[1], SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(days[2], SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(days[3], SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(days[4], SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(days[5], SIGNAL(pressed()), signalMapper, SLOT(map()));
+    connect(days[6], SIGNAL(pressed()), signalMapper, SLOT(map()));
 
-    signalMapper->setMapping(dayOne, 0);
-    signalMapper->setMapping(dayTwo, 1);
-    signalMapper->setMapping(dayThree, 2);
-    signalMapper->setMapping(dayFour, 3);
-    signalMapper->setMapping(dayFive, 4);
-    signalMapper->setMapping(daySix, 5);
-    signalMapper->setMapping(daySeven, 6);
+    signalMapper->setMapping(days[0], 0);
+    signalMapper->setMapping(days[1], 1);
+    signalMapper->setMapping(days[2], 2);
+    signalMapper->setMapping(days[3], 3);
+    signalMapper->setMapping(days[4], 4);
+    signalMapper->setMapping(days[5], 5);
+    signalMapper->setMapping(days[6], 6);
 
     connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(scheduleDay(int)));
 
-    eventListCounter = 0;
+    colorTask();
 }
 
 QString Calendar::dateToString(int day, int month, int year)
@@ -106,18 +122,30 @@ QString Calendar::dateToString(int day, int month, int year)
     }
 
     if(day>0 && day<=7)
+    {
         firstDay = 1;
+        determineDates(firstDay, 0);
+    }
     else if(day>7 && day<=14)
+    {
         firstDay = 8;
+         determineDates(firstDay, 0);
+    }
     else if(day>14 && day<=21)
+    {
         firstDay = 15;
+        determineDates(firstDay, 0);
+    }
     else if(day>21 && day<=28)
+    {
         firstDay = 22;
+        determineDates(firstDay, 0);
+    }
     else if(day>28)
         firstDay = 29;
 
 
-    if( month % 2 != 0 || month == 8 )
+    if( month % 2 != 0 || month == 8 ) // odd months, except August
     {
         QString days[]=     {"1-7",
                          "8-14",
@@ -133,9 +161,12 @@ QString Calendar::dateToString(int day, int month, int year)
         else if(day>21 && day<=28)
             currentDay = days[3];
         else if(day>28 && day<=31)
+        {
             currentDay = days[4];
+            determineDates(firstDay, 31);
+        }
      }
-    if( month % 2 == 0 && month != 2 && month != 8)
+    if( month % 2 == 0 && month != 2 && month != 8) // february
     {
         QString days[]=     {"1-7",
                          "8-14",
@@ -151,11 +182,14 @@ QString Calendar::dateToString(int day, int month, int year)
         else if(day>21 && day<=28)
              currentDay = days[3];
         else if(day>28 && day<=30)
+        {
             currentDay = days[4];
+            determineDates(firstDay, 30);
+        }
     }
-    if ( month == 2)
+    if ( month == 2)    // even months
     {
-        if ( year % 4 == 0)
+        if ( (year % 4 == 0 & year % 100 == 0) | year % 400 == 0 )
         {
             QString days[]=     {"1-7",
                              "8-14",
@@ -170,7 +204,10 @@ QString Calendar::dateToString(int day, int month, int year)
             else if(day>21 && day<=28)
                 currentDay = days[3];
             else if(day == 29)
+            {
                 currentDay = days[4];
+                determineDates(firstDay, 29);
+            }
         }
         else
         {
@@ -221,13 +258,13 @@ void Calendar::navigationLeftClicked()
       day buttons are hidden in sortButtons function below. */
    if(flagHide == 1)
    {
-    dayOne->show();
-    dayTwo->show();
-    dayThree->show();
-    dayFour->show();
-    dayFive->show();
-    daySix->show();
-    daySeven->show();
+    days[0]->show();
+    days[1]->show();
+    days[2]->show();
+    days[3]->show();
+    days[4]->show();
+    days[5]->show();
+    days[6]->show();
    }
 
    currentDateLabel = dateToString(day,month,year);
@@ -235,9 +272,13 @@ void Calendar::navigationLeftClicked()
 
    actualWeek=actualWeek-1;
 
-   locateTask();
-
    sortButtons();
+
+   colorTask();
+   // setting day dates
+
+
+
 }
 
 void Calendar::navigationRightClicked()
@@ -272,22 +313,25 @@ void Calendar::navigationRightClicked()
        day buttons are hidden in sortButtons function below. */
     if(flagHide==1)
     {
-    dayOne->show();
-    dayTwo->show();
-    dayThree->show();
-    dayFour->show();
-    dayFive->show();
-    daySix->show();
-    daySeven->show();
+        days[0]->show();
+        days[1]->show();
+        days[2]->show();
+        days[3]->show();
+        days[4]->show();
+        days[5]->show();
+        days[6]->show();
     }
     currentDateLabel = dateToString(day,month,year);
     dateLabel->setText("<center>" + currentDateLabel + "</center>");
 
     actualWeek=actualWeek+1;
 
-    locateTask();
+    colorTask();
 
     sortButtons();
+
+    // setting day dates
+
 }
 
 
@@ -341,7 +385,9 @@ void Calendar::scheduleDay(int dayID)
     createWindow->show();
 
     connect(taskAccept, SIGNAL(clicked(bool)),this,SLOT(makeList()));   // acceptation of entered data
-    connect(taskAccept,SIGNAL(clicked(bool)),this,SLOT(locateTask()));  // sets mark at the day with task
+    connect(taskAccept,SIGNAL(clicked(bool)),this,SLOT(colorTask()));  // sets mark at the day with task
+
+    // determining clicked day
 
     int additionalVariable;
 
@@ -444,6 +490,7 @@ void Calendar::updateTaskWindow()
             taskEndTimeList[taskCounter].setText(tempEndTime);
 
             taskCounter++;
+
         }
     }
 
@@ -476,69 +523,69 @@ void Calendar::sortButtons()
 
     //Sortting buttons on the information about first day of selected month
     if(whatDay==1){
-        daysLayout->addWidget(dayOne);
-        daysLayout->addWidget(dayTwo);
-        daysLayout->addWidget(dayThree);
-        daysLayout->addWidget(dayFour);
-        daysLayout->addWidget(dayFive);
-        daysLayout->addWidget(daySix);
-        daysLayout->addWidget(daySeven);
+        daysLayout->addWidget(days[0]);
+        daysLayout->addWidget(days[1]);
+        daysLayout->addWidget(days[2]);
+        daysLayout->addWidget(days[3]);
+        daysLayout->addWidget(days[4]);
+        daysLayout->addWidget(days[5]);
+        daysLayout->addWidget(days[6]);
     }
     if(whatDay==2){
-        daysLayout->addWidget(dayTwo);
-        daysLayout->addWidget(dayThree);
-        daysLayout->addWidget(dayFour);
-        daysLayout->addWidget(dayFive);
-        daysLayout->addWidget(daySix);
-        daysLayout->addWidget(daySeven);
-        daysLayout->addWidget(dayOne);
+        daysLayout->addWidget(days[1]);
+        daysLayout->addWidget(days[2]);
+        daysLayout->addWidget(days[3]);
+        daysLayout->addWidget(days[4]);
+        daysLayout->addWidget(days[5]);
+        daysLayout->addWidget(days[6]);
+        daysLayout->addWidget(days[0]);
 
 
     }
     if(whatDay==3){
-        daysLayout->addWidget(dayThree);
-        daysLayout->addWidget(dayFour);
-        daysLayout->addWidget(dayFive);
-        daysLayout->addWidget(daySix);
-        daysLayout->addWidget(daySeven);
-        daysLayout->addWidget(dayOne);
-        daysLayout->addWidget(dayTwo);
+        daysLayout->addWidget(days[2]);
+        daysLayout->addWidget(days[3]);
+        daysLayout->addWidget(days[4]);
+        daysLayout->addWidget(days[5]);
+        daysLayout->addWidget(days[6]);
+        daysLayout->addWidget(days[0]);
+        daysLayout->addWidget(days[1]);
     }
     if(whatDay==4){
-        daysLayout->addWidget(dayFour);
-        daysLayout->addWidget(dayFive);
-        daysLayout->addWidget(daySix);
-        daysLayout->addWidget(daySeven);
-        daysLayout->addWidget(dayOne);
-        daysLayout->addWidget(dayTwo);
-        daysLayout->addWidget(dayThree);
+        daysLayout->addWidget(days[3]);
+        daysLayout->addWidget(days[4]);
+        daysLayout->addWidget(days[5]);
+        daysLayout->addWidget(days[6]);
+        daysLayout->addWidget(days[0]);
+        daysLayout->addWidget(days[1]);
+        daysLayout->addWidget(days[2]);
     }
     if(whatDay==5){
-        daysLayout->addWidget(dayFive);
-        daysLayout->addWidget(daySix);
-        daysLayout->addWidget(daySeven);
-        daysLayout->addWidget(dayOne);
-        daysLayout->addWidget(dayTwo);
-        daysLayout->addWidget(dayThree);
-        daysLayout->addWidget(dayFour);
+        daysLayout->addWidget(days[4]);
+        daysLayout->addWidget(days[5]);
+        daysLayout->addWidget(days[6]);
+        daysLayout->addWidget(days[0]);
+        daysLayout->addWidget(days[1]);
+        daysLayout->addWidget(days[2]);
+        daysLayout->addWidget(days[3]);
     }
     if(whatDay==6){
-        daysLayout->addWidget(daySix);
-        daysLayout->addWidget(daySeven);
-        daysLayout->addWidget(dayOne);
-        daysLayout->addWidget(dayTwo);
-        daysLayout->addWidget(dayThree);
-        daysLayout->addWidget(dayFour);
-        daysLayout->addWidget(dayFive);
+        daysLayout->addWidget(days[5]);
+        daysLayout->addWidget(days[6]);
+        daysLayout->addWidget(days[0]);
+        daysLayout->addWidget(days[1]);
+        daysLayout->addWidget(days[2]);
+        daysLayout->addWidget(days[3]);
+        daysLayout->addWidget(days[4]);
     }
     if(whatDay==7){
-        daysLayout->addWidget(daySeven);
-        daysLayout->addWidget(dayOne);
-        daysLayout->addWidget(dayTwo);
-        daysLayout->addWidget(dayThree);
-        daysLayout->addWidget(dayFour);
-        daysLayout->addWidget(dayFive);
-        daysLayout->addWidget(daySix);
+        daysLayout->addWidget(days[6]);
+        daysLayout->addWidget(days[0]);
+        daysLayout->addWidget(days[1]);
+        daysLayout->addWidget(days[2]);
+        daysLayout->addWidget(days[3]);
+        daysLayout->addWidget(days[4]);
+        daysLayout->addWidget(days[5]);
     }
     //If month has 31 days, and selected range of days is greater than 28
     //Then this condition is hiding rest of buttons, setting flag to 1.
@@ -547,58 +594,58 @@ void Calendar::sortButtons()
     {
         if(whatDay == 1)
         {
-           dayFour->hide();
-           dayFive->hide();
-           daySix->hide();
-           daySeven->hide();
+           days[3]->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay == 2)
         {
-           dayOne->hide();
-           dayFive->hide();
-           daySix->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay == 3)
         {
-           dayOne->hide();
-           dayTwo->hide();
-           daySix->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[1]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay == 4)
         {
-           dayOne->hide();
-           dayTwo->hide();
-           dayThree->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[1]->hide();
+           days[2]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay == 5)
         {
-           dayOne->hide();
-           dayTwo->hide();
-           dayThree->hide();
-           dayFour->hide();
+           days[0]->hide();
+           days[1]->hide();
+           days[2]->hide();
+           days[3]->hide();
            flagHide = 1;
         }
         if(whatDay == 6)
         {
-           dayFive->hide();
-           dayTwo->hide();
-           dayThree->hide();
-           dayFour->hide();
+           days[4]->hide();
+           days[1]->hide();
+           days[2]->hide();
+           days[3]->hide();
            flagHide = 1;
         }
         if(whatDay == 7)
         {
-           dayFive->hide();
-           daySix->hide();
-           dayThree->hide();
-           dayFour->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[2]->hide();
+           days[3]->hide();
            flagHide = 1;
         }
     }
@@ -609,65 +656,65 @@ void Calendar::sortButtons()
     {
         if(whatDay==1)
         {
-           dayThree->hide();
-           dayFour->hide();
-           dayFive->hide();
-           daySix->hide();
-           daySeven->hide();
+           days[2]->hide();
+           days[3]->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay==2)
         {
-           dayOne->hide();
-           dayFour->hide();
-           dayFive->hide();
-           daySix->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[3]->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay==3)
         {
-           dayOne->hide();
-           dayTwo->hide();
-           dayFive->hide();
-           daySix->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[1]->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay==4)
         {
-           dayOne->hide();
-           dayTwo->hide();
-           dayThree->hide();
-           daySix->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[1]->hide();
+           days[2]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay==5)
         {
-           dayOne->hide();
-           dayTwo->hide();
-           dayThree->hide();
-           dayFour->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[1]->hide();
+           days[2]->hide();
+           days[3]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay==6)
         {
-           dayOne->hide();
-           dayFive->hide();
-           dayTwo->hide();
-           dayThree->hide();
-           dayFour->hide();
+           days[0]->hide();
+           days[4]->hide();
+           days[1]->hide();
+           days[2]->hide();
+           days[3]->hide();
            flagHide = 1;
         }
         if(whatDay==7)
         {
-           dayTwo->hide();
-           dayFive->hide();
-           daySix->hide();
-           dayThree->hide();
-           dayFour->hide();
+           days[1]->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[2]->hide();
+           days[3]->hide();
            flagHide = 1;
         }
     }
@@ -677,115 +724,99 @@ void Calendar::sortButtons()
     if(month==2 && day==29)
     {
         if(whatDay==1)
-        {  dayTwo->hide();
-           dayThree->hide();
-           dayFour->hide();
-           dayFive->hide();
-           daySix->hide();
-           daySeven->hide();
+        {  days[1]->hide();
+           days[2]->hide();
+           days[3]->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay==2)
         {
-           dayOne->hide();
-           dayThree->hide();
-           dayFour->hide();
-           dayFive->hide();
-           daySix->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[2]->hide();
+           days[3]->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay==3)
         {
-           dayOne->hide();
-           dayTwo->hide();
-           dayFour->hide();
-           dayFive->hide();
-           daySix->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[1]->hide();
+           days[3]->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay==4)
         {
-           dayOne->hide();
-           dayTwo->hide();
-           dayThree->hide();
-           dayFive->hide();
-           daySix->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[1]->hide();
+           days[2]->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay==5)
         {
-           dayOne->hide();
-           dayTwo->hide();
-           dayThree->hide();
-           dayFour->hide();
-           daySix->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[1]->hide();
+           days[2]->hide();
+           days[3]->hide();
+           days[5]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay==6)
         {
-           dayOne->hide();
-           dayFive->hide();
-           dayTwo->hide();
-           dayThree->hide();
-           dayFour->hide();
-           daySeven->hide();
+           days[0]->hide();
+           days[4]->hide();
+           days[1]->hide();
+           days[2]->hide();
+           days[3]->hide();
+           days[6]->hide();
            flagHide = 1;
         }
         if(whatDay==7)
         {
-           dayOne->hide();
-           dayTwo->hide();
-           dayFive->hide();
-           daySix->hide();
-           dayThree->hide();
-           dayFour->hide();
+           days[0]->hide();
+           days[1]->hide();
+           days[4]->hide();
+           days[5]->hide();
+           days[2]->hide();
+           days[3]->hide();
            flagHide = 1;
         }
   }
 }
-/* This functon is highliting day pushbutton.
- * Its called by taskAccept button from scheudeleDay fcn.
- * It's comparing the week of accepted data with actual week,
- * then it's highlighting the pushbutton where the task has
- * been saved. */
-void Calendar::locateTask()
+/* This functon is highliting day pushbutton if it contains tasks. */
+void Calendar::colorTask()
 {
-    int dayID = activeDate->dayOfWeek();          // czeba jeszcze sprawdzic jaki dzien trzeba podswietlic
-    int weekID = activeDate->weekNumber();
 
-    if(weekID==actualWeek)
+    // searching for first matching event for every day in week
+    for(int thisDay = 0; thisDay < 7; thisDay++)
     {
-        if(dayID==1)
-            dayOne->setStyleSheet("background-color:red");
-        else if(dayID==2)
-            dayTwo->setStyleSheet("background-color:red");
-        else if(dayID==3)
-            dayThree->setStyleSheet("background-color:red");
-        else if(dayID==4)
-            dayFour->setStyleSheet("background-color:red");
-        else if(dayID==5)
-            dayFive->setStyleSheet("background-color:red");
-        else if(dayID==6)
-            daySix->setStyleSheet("background-color:red");
-        else if(dayID==7)
-            daySeven->setStyleSheet("background-color:red");
-    }
-    else
-    {
-        dayOne->setStyleSheet("background-color:none");
-        dayTwo->setStyleSheet("background-color:none");
-        dayThree->setStyleSheet("background-color:none");
-        dayFour->setStyleSheet("background-color:none");
-        dayFive->setStyleSheet("background-color:none");
-        daySix->setStyleSheet("background-color:none");
-        daySeven->setStyleSheet("background-color:none");
+        for(int thisEvent = 0; thisEvent < eventListCounter; thisEvent++)
+        {
+            if(days[thisDay]->getDate() == eventList[thisEvent]->getDate())
+            {
+                days[thisDay]->setStyleSheet("background-color:red");
+                break; // no need for further searching through eventList
+            }
+            else if(thisEvent == eventListCounter - 1) // no match => no color
+            {
+                days[thisDay]->setStyleSheet("background-color:none");
+            }
+        }
+        // when no matching event found - erase color
+
     }
 }
-
 //This method is removing all widgets from layout
 void Calendar::removeLayout(QLayout *layout)
 {
@@ -799,4 +830,178 @@ void Calendar::removeLayout(QLayout *layout)
     }
 }
 
+/* This method calculates real dates for seven current day-buttons and sets
+ * them into corresponding objects */
+void Calendar::determineDates(int firstDay, int mode)
+{
+
+    QDate dayOfWeek(year,month,1);
+    whatDay = dayOfWeek.dayOfWeek();
+
+    if(mode == 0) // for days: 1-7, 8-14, 15-21, 22-28
+    {
+        int additionalVariable = whatDay - 1;
+        for(int i = 0; i < 7; i++)
+        {
+            QDate date(year, month, firstDay + i);
+            days[additionalVariable]->setDate(date);
+
+            additionalVariable = (additionalVariable + 1)%7;
+        }
+    }
+
+
+    if(mode == 29) // for last week in 29-days february
+    {
+        int additionalVariable = whatDay - 1;
+        for(int i = 0; i < 1; i++)
+        {
+            QDate date(year, month, firstDay + i);
+            days[additionalVariable]->setDate(date);
+
+            additionalVariable = (additionalVariable + 1)%7;
+        }
+
+        for(int i = 0; i < 6; i++) // setting hidden buttons to neutral date, same in other modes
+        {
+            QDate date(1, 1, 1);
+            days[additionalVariable]->setDate(date);
+
+            additionalVariable = (additionalVariable + 1)%7;
+        }
+    }
+
+    if(mode == 30)  // for last week in 30-days months
+    {
+        int additionalVariable = whatDay - 1;
+        for(int i = 0; i < 2; i++)
+        {
+            QDate date(year, month, firstDay + i);
+            days[additionalVariable]->setDate(date);
+
+            additionalVariable = (additionalVariable + 1)%7;
+        }
+
+        for(int i = 0; i < 5; i++)
+        {
+            QDate date(1, 1, 1);
+            days[additionalVariable]->setDate(date);
+
+            additionalVariable = (additionalVariable + 1)%7;
+        }
+    }
+
+    if(mode == 31)  // for last week in 31-days months
+    {
+        int additionalVariable = whatDay - 1;
+        for(int i = 0; i < 3; i++)
+        {
+            QDate date(year, month, firstDay + i);
+            days[additionalVariable]->setDate(date);
+
+            additionalVariable = (additionalVariable + 1)%7;
+        }
+
+        for(int i = 0; i < 4; i++)
+        {
+            QDate date(1, 1, 1);
+            days[additionalVariable]->setDate(date);
+
+            additionalVariable = (additionalVariable + 1)%7;
+        }
+    }
+}
+
+/* This method saves all events to file.
+ * Format:
+ * name
+ * date
+ * startTime
+ * endTime
+ * name
+ * date
+ * ...
+*/
+void Calendar::saveEvents()
+{
+
+    QFile file("C:/CalendarData/events.txt");
+    if(file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
+    {
+        QTextStream eventStream(&file);
+        for(int thisEvent = 0; thisEvent < eventListCounter; thisEvent++)
+        {
+        eventStream << eventList[thisEvent]->getName() << "\n"
+        << eventList[thisEvent]->getDate().toString("dd.MM.yyyy") << "\n"
+        << eventList[thisEvent]->getStartTime().toString() << "\n"
+        << eventList[thisEvent]->getEndTime().toString() << "\n";
+        }
+    }
+    file.close();
+}
+
+// This method load saved informations about events from file and recreate eventList array/vector.
+void Calendar::loadEvents()
+{
+    QFile file("C:/CalendarData/events.txt");
+    if(file.open(QFile::ReadOnly))
+    {
+        QTextStream eventStream(&file);
+        while(!eventStream.atEnd())
+        {
+            QString loadedName, loadedDate, loadedStartTime, loadedEndTime;
+
+            loadedName = eventStream.readLine();
+            loadedDate = eventStream.readLine();
+            loadedStartTime = eventStream.readLine();
+            loadedEndTime = eventStream.readLine();
+
+            QDate convertedDate;
+            QTime convertedStartTime, convertedEndTime;
+
+            convertedDate = QDate::fromString(loadedDate, "dd.MM.yyyy");
+            convertedStartTime = QTime::fromString(loadedStartTime);
+            convertedEndTime = QTime::fromString(loadedEndTime);
+
+
+            Event **eventListMemory;
+
+            if(eventListCounter > 0)
+                eventListMemory = eventList;
+
+            eventList = new Event*[eventListCounter + 1];                 // array of pointers to Event objects
+                                                                         // different than future situation of loading from file
+            if(eventListCounter > 0)
+            {
+                for(int i = 0; i < eventListCounter; i++)
+                {
+                    eventList[i] = eventListMemory[i];
+                }
+
+                delete[] eventListMemory;
+            }
+
+            eventList[eventListCounter++] = new Event(loadedName, convertedStartTime, convertedEndTime, convertedDate);
+        }
+    }
+    file.close();
+}
+
+// This runs automatically when application is shutting down.
+void Calendar::closeEvent(QCloseEvent *event)
+{
+    saveEvents();
+}
 Calendar::~Calendar(){}
+
+// ###############################
+
+void Day::setDate(QDate date)
+{
+    this->date = date;
+}
+
+QDate Day::getDate()
+{
+    return date;
+}
