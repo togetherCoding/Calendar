@@ -356,6 +356,7 @@ void Calendar::scheduleDay(int dayID)
     startTime = new QTimeEdit;
     endTime = new QTimeEdit;
     taskAccept = new QPushButton("Ok");
+    checkBox = new QCheckBox;
 
     taskIn->text();
 
@@ -367,13 +368,18 @@ void Calendar::scheduleDay(int dayID)
     taskLayout->addWidget(taskIn, 2, 1);
     taskLayout->addWidget(startTime, 2, 2);
     taskLayout->addWidget(endTime, 2, 3);
-    taskLayout->addWidget(taskAccept, 2, 4);
+    taskLayout->addWidget(checkBox, 2, 4);
+    taskLayout->addWidget(taskAccept, 2, 5);
+
 
     scrollArea = new QScrollArea;
 
     scrollAreaLayout = new QGridLayout;
 
     scrollArea->setWidgetResizable(true);
+
+    startTime->setDisabled(true);
+    endTime->setDisabled(true);
 
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     scrollArea->setLayout(scrollAreaLayout);
@@ -386,6 +392,7 @@ void Calendar::scheduleDay(int dayID)
 
     connect(taskAccept, SIGNAL(clicked(bool)),this,SLOT(makeList()));   // acceptation of entered data
     connect(taskAccept,SIGNAL(clicked(bool)),this,SLOT(colorTask()));  // sets mark at the day with task
+    connect(checkBox,SIGNAL(clicked(bool)),this,SLOT(timeRangeActivator()));
 
     // determining clicked day
 
@@ -423,7 +430,10 @@ void Calendar::makeList()
         delete[] eventListMemory;
     }
 
-    eventList[eventListCounter++] = new Event(taskIn->text(), startTime->time(), endTime->time(), *activeDate);
+    if(checkBox->isChecked())
+        eventList[eventListCounter++] = new Event(taskIn->text(), startTime->time(), endTime->time(), *activeDate);
+    else if(!checkBox->isChecked())
+        eventList[eventListCounter++] = new Event(taskIn->text(), *activeDate);
 
     updateTaskWindow();     // there's need to update task list display just after adding new task
 }
@@ -992,6 +1002,28 @@ void Calendar::closeEvent(QCloseEvent *event)
 {
     saveEvents();
 }
+
+//Checkbox method
+void Calendar::timeRangeActivator()
+{
+    if(checkBox->isChecked())
+    {
+        taskStartTimeLabel->setEnabled(true);
+        startTime->setEnabled(true);
+        endTime->setEnabled(true);
+        taskEndTimeLabel->setEnabled(true);
+        flagTimeRangeActivator = false;
+    }
+    else if (!checkBox->isChecked())
+    {
+        taskStartTimeLabel->setDisabled(true);
+        startTime->setDisabled(true);
+        endTime->setDisabled(true);
+        taskEndTimeLabel->setDisabled(true);
+        flagTimeRangeActivator = true;
+    }
+}
+
 Calendar::~Calendar(){}
 
 // ###############################

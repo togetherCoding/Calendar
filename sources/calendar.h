@@ -64,6 +64,7 @@ private:
 
     QWidget     *createWindow;      //window
 
+    QCheckBox   *checkBox;
 
     bool flag,flagButton,flagHide,flagFeb;
 
@@ -93,6 +94,7 @@ private slots:
      void sortButtons();
      void updateTaskWindow();
      void colorTask();
+     void timeRangeActivator();
      void removeLayout(QLayout *layout);
      void closeEvent(QCloseEvent *event);
 
